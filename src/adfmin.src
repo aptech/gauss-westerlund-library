@@ -1,5 +1,3 @@
-#include adfmin.src
-
 proc(4) = adfmin_west(y, x);
     local n, t;
     local adfn1, adfn2, adfn3, adfn4, brn1, brn2, brn3, brn4, t1, t2;
