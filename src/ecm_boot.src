@@ -315,3 +315,53 @@ proc (2) = ols(y,x,mod);
     retp(b,u);
 endp;
 
+proc(2) = ecm_panel(y, x, mod, p, q, r);
+    local i, j, g, test, m, v, pval, n;
+    
+    n = cols(y);
+    i    = 1;
+    g    = zeros(2, 1);
+    test = zeros(4, 1);
+    do until i > n;
+        g = g + ecm(x[., 1+(i-1)*k:i*k], y[.,i], mod, p, q, r);
+        i = i + 1;
+    endo;
+    
+    { m, v }     = ecmmom(mod, k);
+    test[1:2] = sqrt(n)*(g/n-m)./sqrt(v);
+    { m, v }     = pecmmom(mod, k);
+    test[3:4] = (pecm(x, y, mod, p, q, r) - sqrt(n)*m)./sqrt(v);
+    
+    j     = 1;
+    pval  = zeros(4, 1);
+    botcr = boot(y, x, mod, nb, p, q, r);
+    do until j > 4;
+        pval[j] = counts(botcr[., j], test[j])/nb;
+        j  = j + 1;
+    endo;
+    
+    
+    /* printing options */
+    format/m1/rd 8,3;
+    
+    print " ";
+    print " g_tau   = ";;
+    test[1];;
+    (1-cdfnc(test[1]));;
+    pval[1];
+    print " g_alpha = ";;
+    test[2];;
+    (1-cdfnc(test[2]));;
+    pval[2];
+    
+    print " p_tau   = ";;
+    test[3];;
+    (1-cdfnc(test[3]));;
+    pval[3];
+    print " p_alpha = ";;
+    test[4];;
+    (1-cdfnc(test[4]));;
+    pval[4];
+    
+    retp(test, pval);
+endp;
