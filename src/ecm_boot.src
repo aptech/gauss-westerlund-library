@@ -1,0 +1,317 @@
+
+/*
+** ecm_boot.src was written by Joakim Westerlund, Department of Economics, Lund University.
+** Contact info: joakim.westerlund@nek.lu.se
+**
+** The code can be used freely as long as proper reference is given. No performance
+** guarantee is made. Bug reports are welcome.
+*/
+
+proc (1) = pecm(x, y, mod, p, q, r);
+    local i,n,t,k,yl,dy,yi,xi,v,sv,sy,b,e,et,ea,a,an,vn;
+    
+    t   = rows(y);
+    n   = cols(y);
+    k   = cols(x)/n;
+    
+    i  = 1;
+    an = zeros(n, 1);
+    vn = zeros(n, 1);
+    yl = zeros(t-p-q-1, n);
+    dy = zeros(t-p-q-1, n);
+    do until i > n;
+        
+        { yi, xi } = lagpq(y[., i], x[., 1+(i-1)*k:i*k], p, q);
+        
+        if mod == 2;
+            xi = xi~ones(t-p-q-1, 1);
+        endif;
+        if mod == 3;
+            xi = xi~ones(t-p-q-1, 1)~seqa(1, 1, t-p-q-1);
+        endif;
+        
+        v       = xi[.,2:cols(xi)];
+        yl[.,i] = (eye(t-p-q-1) - v*inv(v'v)*v')*xi[.,1];
+        dy[.,i] = (eye(t-p-q-1) - v*inv(v'v)*v')*yi;
+        a       = inv(xi'xi)*(xi'yi);
+        e       = yi - xi*a;
+        v       = xi[., 2+k:1+(p+q+2)*k]*a[2+k:1+(p+q+2)*k] + e;
+        sy      = lrvar(yi, r);
+        sv      = lrvar(v, r);
+        vn[i]   = (e'e)/(t-p-q-1);
+        an[i]   = sy/sv;
+        
+        i = i + 1;
+    endo;
+    
+    b  = inv(sumc(sumc(yl.*yl)))*sumc(sqrt(an).*sumc(yl.*dy));
+    et = b/sqrt(meanc(vn.*an)*inv(sumc(sumc(yl.*yl))));
+    ea = sqrt(n)*(t-p-q-1)*b;
+    
+    retp(et|ea);
+endp;
+
+proc (1) = ecm(x, y, mod, p, q, r);
+    local t,v,sy,sv,s,b,e,et,ea,k;
+    
+    t     = rows(y);
+    k     = cols(x);
+    { y, x } = lagpq(y, x, p, q);
+    
+    if mod == 2;
+        x = x~ones(t-p-q-1, 1);
+    endif;
+    if mod == 3;
+        x = x~ones(t-p-q-1, 1)~seqa(1, 1, t-p-q-1);
+    endif;
+    
+    b  = inv(x'x)*(x'y);
+    e  = y - x*b;
+    v  = x[., 2+k:1+(p+q+2)*k]*b[2+k:1+(p+q+2)*k] + e;
+    sy = lrvar(y, r);
+    sv = lrvar(v, r);
+    s  = (e'e)/(t-p-q-1);
+    s  = diag(sqrt(s*inv(x'x)));
+    et = b[1]/s[1];
+    ea = ((t-p-q-1)*b[1])*sqrt(sy/sv);
+    
+    retp(et|ea);
+endp;
+
+proc(2) = pecmmom(mod, k);
+    local mu, var;
+    
+    mu = {  -0.5105	     -0.9370	 -1.3169	 -1.6167 	 -1.8815	 -2.1256 ,
+        -1.0263	     -2.4988	 -4.2699	 -6.1141     -8.0317    -10.0074 ,
+        -1.4476	     -1.7131	 -1.9206	 -2.1484     -2.3730     -2.5765 ,
+        -4.2303	     -5.8650	 -7.4599	 -9.3057	-11.3152	-13.3180 ,
+        -2.1124	     -2.2876	 -2.4633	 -2.6275     -2.7858	 -2.9537 ,
+        -8.9326	    -10.4874	-12.1672	-13.8889	-15.6815	-17.6515 };
+    
+    var = {  1.3624	     1.7657	     1.7177	     1.6051	     1.4935	     1.4244 ,
+        8.3827	    24.0223	    39.8827	    53.4518	    63.2406	    76.6757 ,
+        0.9885	     1.0663	     1.1168	     1.1735	     1.1684	     1.1589 ,
+        19.7090	    31.2637	    42.9975	    57.4844	    69.4374	    81.0384 ,
+        0.7649	     0.8137	     0.8857	     0.9985	     0.9918	     0.9898 ,
+        37.5948	    45.6890	    57.9985	    74.1258	    81.3934	    91.2392 };
+    
+    retp(mu[1+2*(mod-1):2*mod,k], var[1+2*(mod-1):2*mod, k]);
+endp;
+
+proc(2) = ecmmom(mod, k);
+    local mu, var;
+    
+    mu = {   -0.9763	 -1.3816	 -1.7093	 -1.9789	 -2.1985     -2.4262 ,
+        -3.8022	 -5.8239	 -7.8108	 -9.8791	-11.7239	-13.8581 ,
+        -1.7776	 -2.0349	 -2.2332	 -2.4453	 -2.6462	 -2.8358 ,
+        -7.1423	 -9.1249	-10.9667	-12.9561	-14.9752	-17.0673 ,
+        -2.3664	 -2.5284	 -2.7040	 -2.8639	 -3.0146	 -3.1710 ,
+        -12.0116	-13.6324	-15.5262	-17.3648	-19.2533	-21.2479 };
+    
+    var = {   1.0823	 1.0981	     1.0489	     1.0576	     1.0351	     1.0409 ,
+        20.6868	29.9016	    39.0109	    50.5741	    58.9595	    69.5967 ,
+        0.8071	 0.8481	     0.8886	     0.9119	     0.9083	     0.9236 ,
+        29.6336	39.3428	    49.4880	    58.7035	    67.9499	    79.1093 ,
+        0.6603	 0.7070	     0.7586	     0.8228	     0.8477	     0.8599 ,
+        46.2420	53.7428	    64.5591	    74.7403	    84.7990	    94.0024 };
+    
+    retp(mu[1+2*(mod-1):2*mod, k], var[1+2*(mod-1):2*mod ,k]);
+endp;
+
+
+proc lrvar(u, k);
+    local sl,s0;
+    
+    sl = fejer(u, k);
+    s0 = (u'u)/rows(u);
+    
+    retp((s0 + sl + sl'));
+endp;
+
+proc fejer(u, k);
+    local i, w, s, u0, ul;
+    
+    if k == 0;
+        s = 0;
+        goto out;
+    endif;
+    
+    i = 1;
+    s = 0;
+    do until i > k;
+        w  = 1 - i/(k+1);
+        u0 = trimr(u, i, 0);
+        ul = trimr(lagn(u, i), i, 0);
+        s  = s + w*(u0'ul);
+        i  = i + 1;
+    endo;
+    
+    out:
+        
+        retp(s/rows(u));
+endp;
+
+
+
+proc (2) = lagpq(y, x, p, q);
+    local t, k, j, dyl, dxl, yl, xl, dy, t1, t2;
+    
+    t  = rows(y);
+    k  = cols(x);
+    t1 = p+2;
+    t2 = t-q;
+    
+    j   = q;
+    dxl = zeros(t-p-q-1, (p+q+1)*k);
+    if p;
+        dyl = zeros(t-p-q-1, p);
+    endif;
+    do until j < -p;
+        dxl[.,1+(q-j)*k:(q-j+1)*k] = x[t1+j:t2+j,.] - x[t1+j-1:t2+j-1,.];
+        if j < 0 and p;
+            dyl[.,-j] = y[t1+j:t2+j] - y[t1+j-1:t2+j-1];
+        endif;
+        j = j - 1;
+    endo;
+    
+    xl = x[t1-1:t2-1,.];
+    yl = y[t1-1:t2-1];
+    dy = y[t1:t2]-yl;
+    if p ne 0;
+        x = (yl~xl~dxl~dyl);
+    endif;
+    if p eq 0;
+        x = (yl~xl~dxl);
+    endif;
+    
+    retp(dy,x);
+endp;
+
+proc(2) = pqfilt(e, x, b, p, q);
+    local t,y,xl,t1,t2,i,j;
+    
+    t  = rows(x);
+    t1 = p+2;
+    t2 = t-q;
+    
+    j  = q;
+    xl = e[p+1:t-q];
+    do until j < -p;
+        xl = xl + x[t1+j-1:t2+j,.]*b[1+(q-j)*k:(q-j+1)*k];
+        j  = j - 1;
+    endo;
+    
+    if p eq 0;
+        y = xl;
+        goto out;
+    endif;
+    
+    t = rows(xl);
+    i = p+1;
+    y = zeros(t+p,1);
+    do while i <= t+p;
+        
+        j    = 1;
+        y[i] = xl[i-p];
+        
+        /*
+        if mod; y[i] = y[i] + b[2*(p+1)+q:rows(b)]'ones(mod,1); endif;
+        */
+        do while j <= p;
+            y[i] = y[i] + b[(q+p+1)*k+j]*y[i-j];
+            j    = j + 1;
+        endo;
+        
+        i = i + 1;
+    endo;
+    
+    out:
+        
+    x = cumsumc(zeros(1,cols(x))|x[p+1:rows(y),.]);
+    y = cumsumc(0|y[p+1:rows(y)]);
+    
+    retp(y[2:t-1], x[2:t-1,.]);
+endp;
+
+
+
+
+proc (1) = boot(y,x,mod,nb,p,q,r);
+    local n,t,i,b,e,u,dy,dx,j,l,h,xb,yb,m,v,ti,t1,t2,k;
+    
+    n = cols(y);
+    t = rows(y);
+    k = cols(x)/n;
+    
+    i  = 1;
+    b  = zeros(mod+p+k*(p+q),n);
+    u  = zeros(t-p-q-1,n);
+    do while i <= n;
+        {yb,xb}         = lagpq(y[.,i],x[.,1+(i-1)*k:i*k],p,q);
+        {b[.,i],u[.,i]} = ols(yb,xb[.,2+k:cols(xb)],mod);
+        i = i + 1;
+    endo;
+    
+    j  = 1;
+    t1 = zeros(2,nb);
+    t2 = zeros(2,nb);
+    dx = x[2:t,.]-x[1:t-1,.];
+    dx = dx - meanc(dx)';
+    u  = u - meanc(u)';
+    do while j <= nb;
+        
+        i  = 1;
+        xb = zeros(t,n*k);
+        yb = zeros(t,n);
+        h  = ceil(rndu(t+p+q+2,1)*(rows(u)));
+        do while i <= n;
+            {yb[.,i],xb[.,1+(i-1)*k:i*k]} = pqfilt(u[h,i],dx[h,1+(i-1)*k:i*k],b[.,i],p,q);
+            i = i + 1;
+        endo;
+        
+        i  = 1;
+        ti = zeros(2,1);
+        do until i > n;
+            ti = ti + ecm(xb[.,1+(i-1)*k:i*k],yb[.,i],mod,p,q,r);
+            i  = i + 1;
+        endo;
+        
+        {m,v}   = ecmmom(mod,k);
+        t1[.,j] = sqrt(n)*(ti/n-m)./sqrt(v);
+        {m,v}   = pecmmom(mod,k);
+        t2[.,j] = (pecm(xb,yb,mod,p,q,r)-sqrt(n)*m)./sqrt(v);
+        
+        j = j + 1;
+    endo;
+    
+    t1 = (sortc(t1[1,.]',1)~sortc(t1[2,.]',1));
+    t2 = (sortc(t2[1,.]',1)~sortc(t2[2,.]',1));
+    
+    retp(t1~t2);
+endp;
+
+
+
+
+
+proc (2) = ols(y,x,mod);
+    local w,b,t,u;
+    
+    t   = rows(y);
+    
+    if mod == 1;
+        w = x;
+    endif;
+    if mod == 2;
+        w = x~ones(t,1);
+    endif;
+    if mod == 3;
+        w = x~ones(t,1)~seqa(1,1,t);
+    endif;
+    
+    b  = inv(w'w)*w'y;
+    u  = y - w*b;
+    
+    retp(b,u);
+endp;
+
