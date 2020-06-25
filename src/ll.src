@@ -1,0 +1,411 @@
+/*
+** ll.src was written by Joakim Westerlund, Department of Economics, Lund University.
+** Contact info:  joakim.westerlund@nek.lu.se
+**
+** The code can be used freely as long as proper reference is given. No performance
+** guarantee is made. Bug reports are welcome.
+*/
+
+proc (4) = est(x, y, mod, p, q, bw);
+    local t,n,i,yt,xt,dx,j,yv,xv,o,u,s,a;
+    local uob,usb,uos,uss,rob,rsb,ros,rss;
+    
+    t = rows(y);
+    n = cols(y);
+    
+    i = 1;
+    yt = zeros(minc(t-p-q-1), 1);
+    xt = zeros(minc(t-p-q-1), 1);
+    do while i <= n;
+        
+        j  = 1;
+        dx = zeros(t-p[i]-q[i]-1, p[i]+q[i]+1);
+        do while j <= 1+p[i]+q[i];
+            dx[., j] = x[p[i]+q[i]+3-j:t-j+1, i] - x[p[i]+q[i]+2-j:t-j, i];
+            j = j + 1;
+        endo;
+        
+        if mod == 1;
+            dx = dx;
+        endif;
+        if mod == 2;
+            dx = ones(rows(dx), 1)~dx;
+        endif;
+        if mod == 3;
+            dx = ones(rows(dx), 1)~seqa(1, 1, rows(dx))~dx;
+        endif;
+        
+        dx = eye(rows(dx)) - dx*inv(dx'dx)*dx';
+        xv = dx*x[2+p[i]:t-q[i], i];
+        yv = dx*y[2+p[i]:t-q[i], i];
+        xt = (xt~xv[1:minc(t-p-q-1)]);
+        yt = (yt~yv[1:minc(t-p-q-1)]);
+        
+        i = i + 1;
+    endo;
+    
+    
+    i = 1;
+    xt = xt[., 2:cols(xt)];
+    yt = yt[., 2:cols(yt)];
+    yv = vec(yt);
+    xv = zeros(rows(yv), cols(xt));
+    do while i <= n;
+        xv[1+(i-1)*rows(xt):i*rows(xt), 1+(i-1):i] = xt[., i];
+        i = i + 1;
+    endo;
+    
+    a    = inv(xv'xv);
+    uob  = a*(xv'yv);
+    u    = yv - xv*uob;
+    u    = reshape(u, n, rows(xt))';
+    s    = inv(lrvar(u, bw)).*.eye(rows(xt));
+    uos  = sqrt(diag(a*(xv'inv(s)*xv)*a));
+    usb  = inv(xv's*xv)*(xv's*yv);
+    uss  = sqrt(diag(inv(xv's*xv)));
+    
+    xv   = vec(xt);
+    a    = inv(xv'xv);
+    rob  = a*(xv'yv);
+    u    = yt - xt*rob;
+    s    = inv(lrvar(u, bw)).*.eye(rows(xt));
+    ros  = sqrt(diag(a*(xv'inv(s)*xv)*a));
+    rsb  = inv(xv's*xv)*(xv's*yv);
+    rss  = sqrt(diag(inv(xv's*xv)));
+    
+    retp((uob~uos), (usb~uss), (rob~ros), (rsb~rss));
+endp;
+
+proc (4) = estsys(x, y, mod, p, q, bw);
+    local t,n,i,k,yt,xt,dx,ddx,j,yv,xv,o,u,s,a;
+    local uob,usb,uos,uss,rob,rsb,ros,rss;
+    
+    t = rows(y);
+    n = cols(y);
+    
+    i  = 1;
+    yt = zeros(minc(t-p-q-1), 1);
+    xt = zeros(minc(t-p-q-1), 1);
+    do while i <= n;
+        
+        k   = 1;
+        ddx	= zeros(t-p[i]-q[i]-1, 1);
+        dx  = zeros(t-p[i]-q[i]-1, p[i]+q[i]+1);
+        do while k <= n;
+            
+            j  = 1;
+            do while j <= 1+p[i]+q[i];
+                dx[.,j] = x[p[i]+q[i]+3-j:t-j+1, k]-x[p[i]+q[i]+2-j:t-j, k];
+                j = j + 1;
+            endo;
+            
+            ddx = (ddx~dx);
+            k = k + 1;
+        endo;
+        
+        ddx = ddx[., 2:cols(ddx)];
+        if mod == 1;
+            dx = ddx;
+        endif;
+        if mod == 2;
+            dx = ones(rows(ddx), 1)~ddx;
+        endif;
+        if mod == 3;
+            dx = ones(rows(ddx), 1)~seqa(1, 1, rows(ddx))~ddx;
+        endif;
+        
+        dx = eye(rows(dx)) - dx*inv(dx'dx)*dx';
+        xv = dx*x[2+p[i]:t-q[i], i];
+        yv = dx*y[2+p[i]:t-q[i], i];
+        xt = (xt~xv[1:minc(t-p-q-1)]);
+        yt = (yt~yv[1:minc(t-p-q-1)]);
+        
+        i = i + 1;
+    endo;
+    
+    
+    i = 1;
+    xt = xt[., 2:cols(xt)];
+    yt = yt[., 2:cols(yt)];
+    yv = vec(yt);
+    xv = zeros(rows(yv), cols(xt));
+    do while i <= n;
+        xv[1+(i-1)*rows(xt):i*rows(xt), 1+(i-1):i] = xt[., i];
+        i = i + 1;
+    endo;
+    
+    a    = inv(xv'xv);
+    uob  = a*(xv'yv);
+    u    = yv - xv*uob;
+    u    = reshape(u, n, rows(xt))';
+    s    = inv(lrvar(u, bw)).*.eye(rows(xt));
+    uos  = sqrt(diag(a*(xv'inv(s)*xv)*a));
+    usb  = inv(xv's*xv)*(xv's*yv);
+    uss  = sqrt(diag(inv(xv's*xv)));
+    
+    xv   = vec(xt);
+    a    = inv(xv'xv);
+    rob  = a*(xv'yv);
+    u    = yt - xt*rob;
+    s    = inv(lrvar(u, bw)).*.eye(rows(xt));
+    ros  = sqrt(diag(a*(xv'inv(s)*xv)*a));
+    rsb  = inv(xv's*xv)*(xv's*yv);
+    rss  = sqrt(diag(inv(xv's*xv)));
+    
+    retp((uob~uos), (usb~uss), (rob~ros), (rsb~rss));
+endp;
+
+proc lrvar(u, k);
+    local lr, io, s;
+    io = fejer(u, k);
+    s  = (u'u)/rows(u);
+    lr = s + io + io';
+    retp(lr);
+endp;
+
+proc fejer(uv,k);
+    local i,m,a,t1,t2,f;
+    i = 1;
+    a = 0;
+    do until i > k;
+        f = i/(k+1);
+        m = 1 - f;
+        t1 = trimr(uv,i,0);
+        t2 = trimr(lagn(uv,i),i,0);
+        a = a + m*(t1't2);
+        i = i + 1;
+    endo;
+    retp(a/rows(uv));
+endp;
+
+proc(2) = ic(x,y,pmax,qmax,mod,r);
+    local q,crit,criti,p,i,xt,yt,dx,n,f;
+    local t,j,u,s,smax,a,pq;
+    
+    n = cols(x);
+    t = rows(x);
+    f = t-pmax-qmax;
+    
+    q = qmax;
+    crit = zeros(1,3*n);
+    do while q >= 0;
+        
+        p = pmax;
+        do while p >= 0;
+            
+            
+            i = 1;
+            criti   = 0;
+            xt      = x[2+p:t-q,.];
+            yt      = y[2+p:t-q,.];
+            dx      = zeros(t-p-q-1,p+q+1);
+            do while i <= n;
+                
+                j = 1;
+                do while j <= 1+p+q;
+                    dx[.,j] = x[p+q+3-j:t+1-j,i] - x[p+q+2-j:t-j,i];
+                    j = j + 1;
+                endo;
+                
+                if mod == 1;
+                    dx = xt[.,i]~dx;
+                elseif mod == 2;
+                    dx = ones(rows(dx),1)~xt[.,i]~dx;
+                elseif mod == 3;
+                    dx = ones(rows(dx),1)~seqa(1,1,rows(dx))~xt[.,i]~dx;
+                endif;
+                
+                u   = (eye(rows(dx))-dx*inv(dx'dx)*dx')*yt[.,i];
+                s   = u'u/f;
+                
+                if p == pmax and q == qmax;
+                    smax = s;
+                endif;
+                
+                if  r == 1;
+                    a = ln(f);
+                elseif r == 2;
+                    a = 2;
+                elseif r == 3;
+                    a = 2*ln(ln(f));
+                endif;
+                
+                if  r == 1 or r == 2 or r == 3;
+                    a = ln(s)+a*(p+q+1+mod)/f;
+                elseif r == 4;
+                    a = ln(s)+ln(det(dx'dx/smax))/f;
+                elseif r == 5;
+                    a = f*s+smax*ln(det(dx'dx));
+                endif;
+                
+                criti = criti~a~p~q;
+                
+                i = i + 1;
+            endo;
+            
+            crit = crit|criti[2:cols(criti)];
+            
+            p = p-1;
+        endo;
+        
+        q = q-1;
+    endo;
+    
+    crit = crit[2:rows(crit),.];
+    
+    i = 1;
+    p = zeros(n,1);
+    q = zeros(n,1);
+    do while i <= n;
+        pq = sortc(crit,3*(i-1)+1);
+        p[i] = pq[1,3*(i-1)+2];
+        q[i] = pq[1,3*(i-1)+3];
+        i = i+1;
+    endo;
+    
+    
+    retp(p,q);
+endp;
+
+proc(2) = icsys(x,y,pmax,qmax,d,r);
+    local q,crit,criti,p,i,xt,yt,dx,ddx,n,f;
+    local t,j,z,m,b,res,ome,omek,a,pq;
+    
+    n = cols(x);
+    t = rows(x);
+    f = t-pmax-qmax;
+    
+    q = qmax;
+    crit = zeros(1,3*n);
+    do while q >= 0;
+        
+        p = pmax;
+        do while p >= 0;
+            
+            i = 1;
+            xt  = x[2+p:t-q,.];
+            yt  = y[2+p:t-q,.];
+            dx  = zeros(rows(x[2+p:t-q,.]),p+q+1);
+            ddx	= zeros(rows(x[2+p:t-q,.]),1);
+            do while i <= n;
+                
+                j = 1;
+                do while j <= 1+p+q;
+                    dx[.,j] = x[p+q+3-j:t+1-j,i] - x[p+q+2-j:t-j,i];
+                    j = j + 1;
+                endo;
+                ddx = ddx~dx;
+                
+                i = i + 1;
+            endo;
+            
+            
+            i 	= 1;
+            criti = 0;
+            ddx = ddx[.,2:cols(ddx)];
+            do while i <= n;
+                
+                if d == 1;
+                    z = xt[., i]~ddx;
+                elseif == 2;
+                    z = ones(rows(dx), 1)~xt[.,i]~ddx;
+                elseif d == 3;
+                    z = ones(rows(dx), 1)~seqa(1,1,rows(dx))~xt[.,i]~ddx;
+                endif;
+                
+                b = invpd(z'z)*z'yt[.,i];
+                res = yt[.,i] - z*b;
+                ome = res'res/f;
+                
+                if p == pmax and q == qmax;
+                    omek = ome;
+                endif;
+                
+                if r == 1;
+                    a = ln(f);
+                elseif r == 2;
+                    a = 2;
+                elseif r == 3;
+                    a = 2*ln(ln(f));
+                endif;
+                
+                if r == 1 or r == 2 or r == 3;
+                    a = ln(ome)+a*(n*(p+q+1)+d)/f;
+                elseif r == 4;
+                    a = ln(ome)+ln(det(z'z/omek))/f;
+                elseif r == 5;
+                    a = f*ome+omek*ln(det(z'z));
+                endif;
+                
+                criti = criti~a~p~q;
+                
+                i = i + 1;
+            endo;
+            
+            crit = crit|criti[2:cols(criti)];
+            
+            p = p-1;
+        endo;
+        
+        q = q-1;
+    endo;
+    
+    crit = crit[2:rows(crit), .];
+    
+    i = 1;
+    p = zeros(n, 1);
+    q = zeros(n, 1);
+    do while i <= n;
+        pq = sortc(crit, 3*(i-1)+1);
+        p[i] = pq[1, 3*(i-1)+2];
+        q[i] = pq[1, 3*(i-1)+3];
+        i = i + 1;
+    endo;
+    
+    retp(p, q);
+endp;
+
+
+proc(2) = lmbreak_panel(y, x, mod, est, seg, m, cri, ite);
+    local i, bri, lmi, mu, var, y0, x0, n, t;
+    
+    // Size of panel
+    n = cols(y);
+    t = rows(y);
+    
+    i    = 1;
+    bri  = zeros(m+1,1);
+    lmi  = zeros(1,3);
+    {mu, var} = mom(mod,k,est,t);
+    do until i > n;
+        
+        y0  = y[.,i];
+        x0  = x[.,1+k*(i-1)];
+        bri = bri~breaks(y0,x0,mod,seg,m,cri,ite);
+        lmi = lmi + lmbreak(y0,x0,mod,bri[1,1+i],bri[2:m+1,1+i],est,mu,var);
+        
+        i = i + 1;
+    endo;
+    
+    bri = bri[.,2:cols(bri)];
+    mu  = lmi[2]/n;
+    var = lmi[3]/n;
+    lmi = sqrt(n)*(lmi[1]/n-mu)./sqrt(var);
+    
+    /* printing options */
+    format/m1/rd 8,3;
+    
+    
+    print " ";
+    print " n  = ";;
+    n;
+    print " t  = ";;
+    t;
+    print " lm = ";;
+    lmi;
+    print " ";
+    print " est breaks ";
+    bri;
+    retp(lmi, bri);
+endp;
+
