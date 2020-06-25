@@ -1,0 +1,542 @@
+/*
+** lm.src was written by Joakim Westerlund, Department of Economics, Lund University.
+** Contact info:  joakim.westerlund@nek.lu.se
+**
+** The code can be used freely as long as proper reference is given. No performance
+** guarantee is made. Bug reports are welcome.
+*/
+
+proc(1) = lmbreak(y,x,mod,nbr,tb,est,mu,var);
+    local lmi,yb,xb,j;
+    
+    lmi = 0;
+    
+    if nbr > 0;
+        tb = selif(tb,tb .> 0);
+    elseif nbr == 0;
+        tb = 0;
+    endif;
+    
+    if mod == 0 or mod == 1 or mod == 2;
+        lmi = lmi + lm(estim_west(y,x,mod,est));
+    elseif mod == 3 or mod == 4;
+        if nbr > 0;
+            yb  = y[1:tb[1]];
+            xb  = x[1:tb[1],.];
+            lmi = lmi + lm(estim_west(yb,xb,mod,est));
+            
+            j  = 2;
+            do while j <= nbr;
+                yb  = y[1+tb[j-1]:tb[j]];
+                xb  = x[1+tb[j-1]:tb[j],.];
+                lmi = lmi + lm(estim_west(yb,xb,mod,est));
+                j   = j + 1;
+            endo;
+            
+            yb  = y[1+tb[nbr]:rows(y)];
+            xb  = x[1+tb[nbr]:rows(x),.];
+            lmi = lmi + lm(estim_west(yb,xb,mod,est));
+        elseif nbr == 0;
+            lmi = lmi + lm(estim_west(y,x,mod,est));
+        endif;
+    endif;
+    
+    retp(lmi~(nbr+1)*mu~(nbr+1)^2*var);
+endp;
+
+proc(1) = breaks(y,x,mod,seg,m,cri,ite);
+    local t,tb,nbr,ssrv,s0;
+    
+    t = rows(y);
+    
+    if mod == 0 or mod == 1 or mod == 2;
+        tb  = zeros(m,1);
+        nbr = 0;
+    elseif mod == 3 or mod == 4;
+        {ssrv,tb} = dat_west(y,x,mod,seg,m,cri,ite);
+        s0        = ssr0(y,x,mod);
+        nbr       = order(s0,ssrv,t,m,mod);
+    endif;
+    
+    if nbr > 0;
+        tb = tb[.,nbr];
+    elseif nbr == 0;
+        tb = zeros(m,1);
+    endif;
+    
+    retp(nbr|tb);
+endp;
+
+proc(1) = estim_west(y,x,mod,est);
+    local u,t,p;
+    
+    t = rows(y);
+    p = int(t^(1/3));
+    
+    if est == 1;
+        u = dols(y, x, mod, p);
+    elseif est == 2;
+        u = fmols(y, x, mod, p);
+    endif;
+    
+    retp(u);
+endp;
+
+
+
+
+proc(2) = mom(mod,k,est,t);
+    local a1,a2,a3,mu,var;
+    
+    if est == 1;    /* dols */
+        if mod == 0;
+            a2 = {  0.36132	-0.22961	1.57112	-16.31658 ,
+                0.27401	-0.31577	1.99793	-15.55645 ,
+                0.22226	-0.63793	4.13834	-30.95020 ,
+                0.18901	-0.82065	5.10891	-33.87714 ,
+                0.14815	-0.40345	1.59114	 29.82585 };
+            
+            a3 = {  0.19043	-0.44026	0.68625	-10.46369 ,
+                0.11030	-0.24182	0.18178	 -0.98334 ,
+                0.07280	-0.41392	2.05185	-18.72711 ,
+                0.05053	-0.39326	2.01483	-17.22861 ,
+                0.03162	-0.22870	1.08659	 -7.95727 };
+            
+        elseif mod == 1 or mod == 3;
+            a2 = {  0.11625	 0.00344	 0.25486	10.42508 ,
+                0.08775	-0.06769	 0.69281	 9.15342 ,
+                0.06583	 0.02019	-0.05966	22.41660 ,
+                0.05238	 0.03925	-0.27469	30.42694 ,
+                0.04255	 0.08621	-0.72910	41.76848 };
+            
+            a3 = {  0.01159	-0.03922	0.15646	-2.72168 ,
+                0.00642	-0.03858	0.20346	-2.59177 ,
+                0.00301	-0.01180	0.04324	-0.67325 ,
+                0.00177	-0.01178	0.05704	-0.63751 ,
+                0.00109	-0.00809	0.03283	-0.24776 };
+            
+        elseif mod == 2 or mod == 4;
+            a2 = {  0.05347	0.10835	-0.31741	19.11540 ,
+                0.04542	0.10271	-0.39739	23.86645 ,
+                0.03855	0.11087	-0.54675	30.28444 ,
+                0.03248	0.14376	-0.88995	39.98488 ,
+                0.02710	0.19392	-1.38020	52.16569 };
+            
+            a3 = {  0.00124	-0.00398	 0.00988	-0.24893 ,
+                0.00091	-0.00446	 0.01700	-0.24814 ,
+                0.00062	-0.00303	 0.00961	-0.10056 ,
+                0.00044	-0.00217	 0.00279	 0.07898 ,
+                0.00027	-0.00027	-0.01137	 0.34558 };
+        endif;
+    endif;
+    
+    if est == 2;    /* fmols */
+        if mod == 0;
+            a2 = {  0.35264	 0.05048	-0.61249	12.82076 ,
+                0.26144	 0.03296	-0.91888	17.62065 ,
+                0.20695	-0.12335	-0.20455	15.76128 ,
+                0.16916	-0.26228	 0.82432	 8.03949 ,
+                0.13943	-0.24630	 0.75407	11.69389 };
+            
+            a3 = {  0.18995	-0.42167	 0.51418	-0.56690 ,
+                0.09720	 0.11888	-2.31403	24.26596 ,
+                0.06441	-0.12325	-0.26189	 5.93036 ,
+                0.04111	-0.13058	 0.15712	 0.77613 ,
+                0.02693	-0.10471	 0.17162	 0.30837 };
+            
+        elseif mod == 1 or mod == 3;
+            a2 = {  0.11708	-0.05532	0.31233	 3.14865 ,
+                0.08557	-0.06494	0.24917	 6.69821 ,
+                0.06730	-0.11746	0.60610	 6.52534 ,
+                0.05391	-0.09801	0.49008	11.09135 ,
+                0.04451	-0.09041	0.53038	13.72616 };
+            
+            a3 = {  0.01130	-0.02838	-0.02232	 0.55336 ,
+                0.00581	-0.02252	 0.01171	 0.30932 ,
+                0.00309	-0.02008	 0.05684	-0.21322 ,
+                0.00161	-0.00995	 0.01394	 0.19668 ,
+                0.00095	-0.00646	 0.00484	 0.31930 };
+            
+        elseif mod == 2 or mod == 4;
+            a2 = {  0.05515	 0.01680	0.21483	 4.98491 ,
+                0.04749	-0.02300	0.39897	 6.46768 ,
+                0.04103	-0.03676	0.45948	 9.02230 ,
+                0.03558	-0.04270	0.53224	11.23719 ,
+                0.03073	-0.02145	0.41501	15.37253 };
+            
+            a3 = {  0.00125	-0.00527	 0.00590	0.02762 ,
+                0.00085	-0.00385	 0.00168	0.10582 ,
+                0.00057	-0.00232	-0.00541	0.22323 ,
+                0.00036	-0.00087	-0.01211	0.33811 ,
+                0.00025	-0.00023	-0.01607	0.46277 };
+        endif;
+    endif;
+    
+    a1  = 1~t^(-1/2)~t^(-1)~t^(-2);
+    mu  = a1*a2[k,.]';
+    var = a1*a3[k,.]';
+    
+    retp(mu, var);
+endp;
+
+proc (1) = lm(u);
+    local t,s,io,lm1;
+    
+    t 	= rows(u);
+    s   = (u'u)/t;
+    io 	= fejer(u,int(t^(1/3)));
+    s   = s + io + io';
+    lm1 = (sumc(abs(cumsumc(u)).^2))/((t^2)*s);
+    
+    retp(lm1);
+endp;
+
+proc(2) = dat_west(y,x,mod,seg,m,eps,ite);
+    local t,i,j,z,xbar,zbar,te0,te1,de1,be1,ssr1;
+    local ssrn,ssr0,dt0,dt,length;
+    
+    t = rows(y);
+    
+    if mod == 3;
+        z = ones(t,1);
+    elseif mod == 4;
+        z = ones(t,1)~seqa(1,1,t);
+    endif;
+    
+    i       = 1;
+    ssr0    = zeros(m,1);
+    dt0     = zeros(m,m);
+    dt      = zeros(m,m);
+    do while i <= m;
+        
+        dt      = dati_west(y,(x~z),seg,i);
+        xbar    = pzbar(x,i,dt[1:i,i]);
+        zbar    = pzbar(z,i,dt[1:i,i]);
+        te0     = olsqr(y,(zbar~xbar));
+        de1     = te0[1:cols(z)*(i+1),1];
+        be1     = olsqr((y-zbar*de1),x);
+        ssr1    = (y-x*be1-zbar*de1)'(y-x*be1-zbar*de1);
+        
+        j = 1;
+        length = 99999999;
+        do while length > eps;
+            
+            dt      = dati_west((y-x*be1),z,seg,i);
+            zbar    = pzbar(z,i,dt[1:i,i]);
+            te1     = olsqr(y,(x~zbar));
+            be1     = te1[1:cols(x)];
+            de1     = te1[cols(x)+1:cols(x)+cols(z)*(i+1)];
+            ssrn    = (y-(x~zbar)*te1)'(y-(x~zbar)*te1);
+            length  = abs(ssrn-ssr1);
+            
+            if j >= ite;
+                goto top;                   /* no of iter reached upper limit */
+            else;
+                j = j+1;
+                ssr1        = ssrn;
+                ssr0[i]     = ssrn;
+                dt0[1:i,i]  = dt[1:i,i];
+            endif;
+        endo;
+        
+        i = i+1;
+    endo;
+    
+    top:
+        
+        retp(ssr0,dt0);
+endp;
+
+
+proc(1) = dati_west(y,z,seg,m);
+    local i,t,j,l,dt0,odt,ossr,d,ssrmin,dt;
+    local ssr0,ssr1,ssrv;
+    
+    i    = 1;
+    t    = rows(y);
+    dt0  = zeros(m,m);
+    odt  = zeros(t,m);
+    ossr = zeros(t,m);
+    d    = zeros(t,1);
+    ssr0 = zeros(m,1);
+    ssrv = zeros(t*(t+1)/2,1);
+    do while i <= t-seg+1;
+        ssr1 = ssr_west(i,t,y,z,seg);
+        ssrv[(i-1)*t+i-(i-1)*i/2:i*t-(i-1)*i/2,1] = ssr1[i:t];
+        i = i+1;
+    endo;
+    
+    if m == 1;
+        {ssrmin,dt} = parti_west(1,seg,t-seg,t,ssrv,t);
+        dt0[1,1]    = dt;
+        ssr0[1,1]   = ssrmin;
+    else;
+        
+        j = 2*seg;
+        do while j <= t;
+            {ssrmin,dt} = parti_west(1,seg,j-seg,j,ssrv,t);
+            ossr[j,1]   = ssrmin;
+            odt[j,1]    = dt;
+            j = j+1;
+        endo;
+        
+        i = 2;
+        ssr0[1,1] = ossr[t,1];
+        dt0[1,1]  = odt[t,1];
+        do while i <= m;
+            
+            if i == m;
+                l  = t;
+                dt = i*seg;
+                do while dt <= l-seg;
+                    d[dt,1] = ossr[dt,i-1]+ssrv[(dt+1)*t-dt*(dt+1)/2,1];
+                    dt      = dt+1;
+                endo;
+                
+                ossr[l,i] = minc(d[i*seg:l-seg,1]);
+                odt[l,i]  = (i*seg-1)+minindc(d[i*seg:l-seg,1]);
+            else;
+                
+                l = (i+1)*seg;
+                do while l <= t;
+                    
+                    dt = i*seg;
+                    do while dt <= l-seg;
+                        d[dt,1] = ossr[dt,i-1]+ssrv[dt*t-dt*(dt-1)/2+l-dt,1];
+                        dt      = dt+1;
+                    endo;
+                    
+                    ossr[l,i] = minc(d[i*seg:l-seg,1]);
+                    odt[l,i]  = (i*seg-1)+minindc(d[i*seg:l-seg,1]);
+                    
+                    l = l+1;
+                endo;
+            endif;
+            
+            j = 1;
+            dt0[i,i] = odt[t,i];
+            do while j <= i-1;
+                l = i-j;
+                dt0[l,i] = odt[dt0[l+1,i],l];
+                j = j+1;
+            endo;
+            
+            ssr0[i,1] = ossr[t,i];
+            i = i+1;
+        endo;           /* break loop stopped */
+    endif;
+    
+    retp(dt0);
+endp;
+
+proc(1) = ssr_west(d0,d1,y,z,seg);
+    local s,del1,del2,inv1,inv2,inv3,u,v,f,r;
+    
+    s             = zeros(d1,1);
+    inv1          = inv(z[d0:d0+seg-1,.]'z[d0:d0+seg-1,.]);
+    del1          = inv1*(z[d0:d0+seg-1,.]'y[d0:d0+seg-1,1]);
+    u             = y[d0:d0+seg-1,1]-z[d0:d0+seg-1,.]*del1;
+    s[d0+seg-1,1] = u'u;
+    
+    r = d0+seg;
+    do while r <= d1;
+        
+        v       = y[r,1]-z[r,.]*del1;
+        inv3    = inv1*z[r,.]';
+        f       = 1+z[r,.]*inv3;
+        del2    = del1+(inv3*v)/f;
+        inv2    = inv1-(inv3*inv3')/f;
+        inv1    = inv2;
+        del1    = del2;
+        s[r]    = s[r-1]+v*v/f;
+        
+        r = r+1;
+    endo;
+    
+    retp(s);
+endp;
+
+
+
+proc(2) = parti_west(s0,b0,b1,s1,ssrv,t);
+    local k,d,j,s,i,l;
+    
+    j = b0;
+    d = zeros(t,1);
+    i = (s0-1)*t-(s0-2)*(s0-1)/2+1;
+    do while j <= b1;
+        l    = j-s0;
+        k    = j*(t-1)-(j-1)*j/2+s1;
+        d[j] = ssrv[i+l]+ssrv[k];
+        j    = j+1;
+    endo;
+    
+    s = minc(d[b0:b1]);
+    d = (b0-1)+minindc(d[b0:b1]);
+    
+    retp(s,d);
+endp;
+
+proc pzbar(z,i,dt);
+    local t,q,zd,j;
+    
+    j   = 2;
+    t   = rows(z);
+    q   = cols(z);
+    zd  = zeros(t,(i+1)*q);
+    zd[1:dt[1],1:q] = z[1:dt[1],.];
+    do while j <= i;
+        zd[dt[j-1]+1:dt[j],(j-1)*q+1:j*q] = z[dt[j-1]+1:dt[j],.];
+        j = j+1;
+    endo;
+    
+    zd[dt[i]+1:t,i*q+1:(i+1)*q] = z[dt[i]+1:t,.];
+    
+    retp(zd);
+endp;
+
+proc ssr0(y,x,mod);
+    local t,z,b,ssr;
+    
+    t = rows(y);
+    
+    if mod == 3;
+        z = ones(t,1);
+    endif;
+    if mod == 4;
+        z = ones(t,1)~seqa(1,1,t);
+    endif;
+    
+    b   = olsqr(y,(z~x));
+    ssr = (y-(z~x)*b)'(y-(z~x)*b);
+    
+    retp(ssr);
+endp;
+
+proc(1) = order(s0,ssr0,t,m,mod);
+    local bic,lwz,i,ssr,q;
+    
+    i            = 0;
+    q            = mod-2;
+    ssr          = zeros(m+1,1);
+    ssr[1,1]     = s0;
+    ssr[2:m+1,1] = ssr0;
+    bic          = zeros(m+1,1);
+    lwz          = zeros(m+1,1);
+    do while i <= m;
+        bic[i+1,1] = ln(ssr[i+1,1]/t)+ln(t)*i*(q+1)/t;
+        lwz[i+1,1] = ln(ssr[i+1,1]/(t-(i+1)*q-i))+(i*(q+1)*(0.299)*(ln(t))^(2.1))/t;
+        i = i+1;
+    endo;
+    
+    bic = minindc(bic)-1;
+    lwz = minindc(lwz)-1;
+    
+    retp(bic);
+endp;
+
+proc(1) = fmols(y,x,mod,p);
+    local w,xd,b,dx,e,io,s,sig,del,s21,s12,del21;
+    local ys,xk,ixx,t,u,d,k;
+    
+    t   = rows(y);
+    k   = cols(x);
+    
+    if mod == 0;
+        w   = x;
+        xd  = x;
+    else;
+        d   = detc(mod,t);
+        w   = x~d;
+        xd  = x-d*inv(d'd)*d'x;
+    endif;
+    
+    b 	= inv(w'w)*w'y;
+    u   = y - w*b;
+    dx 	= xd[2:t,.]-xd[1:t-1,.];
+    e 	= u[2:t,.]~dx;
+    
+    io 	= fejer(e,p);
+    s  	= (e'e)/rows(e);
+    sig = s + io + io';
+    del = s + io';
+    s21	= invpd(sig[2:k+1,2:k+1])*sig[2:k+1,1];
+    s12 = sig[1,1] - sig[1,2:k+1]*s21;
+    
+    if mod == 0;
+        del21 = t*(del[2:k+1,1]-del[2:k+1,2:k+1]*s21);
+    else;
+        del21 = t*(del[2:k+1,1]-del[2:k+1,2:k+1]*s21)|zeros(cols(d),1);
+    endif;
+    
+    ys      = y[2:t] - dx*s21;
+    xk      = w[2:t,.];
+    ixx     = inv(xk'xk);
+    b 	    = ixx*((xk'ys)-del21);
+    u       = ys - xk*b;
+    
+    retp(u);
+endp;
+
+proc(1) = dols(y,x,mod,p);
+    local i,xi,yi,t,n,dx,j,z,b,u,k;
+    
+    t   = rows(y);
+    k   = cols(x);
+    
+    j  = 1;
+    dx = zeros(t-2*p-1,k*(2*p+1));
+    do while j <= 2*p+1;
+        dx[.,1+(j-1)*k:j*k] = x[2*p+3-j:t+1-j,.] - x[2*p+2-j:t-j,.];
+        j = j + 1;
+    endo;
+    
+    xi = x[1:t-2*p-1,.];
+    yi = y[1:t-2*p-1,.];
+    z  = eye(rows(dx)) - dx*inv(dx'dx)*dx';
+    
+    if mod == 0;
+        xi = xi;
+    else;
+        xi = detc(mod,t-2*p-1)~xi;
+    endif;
+    
+    xi = z*xi;
+    yi = z*yi;
+    
+    b = invpd(xi'xi)*xi'yi;
+    u = yi - xi*b;
+    
+    retp(u);
+endp;
+
+proc(1) = detc(mod,t);
+    local z;
+    
+    if mod == 1;
+        z = ones(t,1);
+    elseif mod == 2;
+        z = ones(t,1)~seqa(1,1,t);
+    elseif mod == 3;
+        z = ones(t,1);
+    elseif mod == 4;
+        z = ones(t,1)~seqa(1,1,t);
+    endif;
+    
+    retp(z);
+endp;
+
+proc fejer(uv,k);
+    local i,m,a,t1,t2,f;
+    i = 1;
+    a = 0;
+    do until i > k;
+        f = i/(k+1);
+        m = 1 - f;
+        t1 = trimr(uv,i,0);
+        t2 = trimr(lagn(uv,i),i,0);
+        a = a + m*(t1't2);
+        i = i + 1;
+    endo;
+    retp(a/rows(uv));
+endp;
