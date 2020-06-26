@@ -1,6 +1,17 @@
 new;
-t       = ??;
-n       = ??;
+library westerlund;
+
+n = 16;
+
+// Load data
+ynames = "TC02_" $+ ntos(seqa(1, 1, 16), 2);
+dat = loadd(__FILE_DIR $+ "panelcoint.dat");
+
+y = dat[.,1:n];
+x = dat[.,n+1:cols(dat)];
+
+// Dimensions
+t = rows(y);
 
 // Max factors
 max     = 5;         
@@ -19,9 +30,6 @@ q       = int(4*(t/100)^(2/9));
 
 // Trimming
 tr      = 0.1;                    
-
-load x[t,n] = c:\??;
-load y[t,n] = c:\??;
 
 // Find break points
 brn      = ilt_br(y, x, tr, p, mod);
