@@ -118,41 +118,6 @@ proc(2) = ecmmom(mod, k);
     retp(mu[1+2*(mod-1):2*mod, k], var[1+2*(mod-1):2*mod ,k]);
 endp;
 
-
-proc lrvar(u, k);
-    local sl,s0;
-    
-    sl = fejer(u, k);
-    s0 = (u'u)/rows(u);
-    
-    retp((s0 + sl + sl'));
-endp;
-
-proc fejer(u, k);
-    local i, w, s, u0, ul;
-    
-    if k == 0;
-        s = 0;
-        goto out;
-    endif;
-    
-    i = 1;
-    s = 0;
-    do until i > k;
-        w  = 1 - i/(k+1);
-        u0 = trimr(u, i, 0);
-        ul = trimr(lagn(u, i), i, 0);
-        s  = s + w*(u0'ul);
-        i  = i + 1;
-    endo;
-    
-    out:
-        
-        retp(s/rows(u));
-endp;
-
-
-
 proc (2) = lagpq(y, x, p, q);
     local t, k, j, dyl, dxl, yl, xl, dy, t1, t2;
     
