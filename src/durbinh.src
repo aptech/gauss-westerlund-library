@@ -101,24 +101,6 @@ proc (1) = pdh(w, p);
     retp(dhs);
 endp;
 
-//proc lagn(x, n);
-
-//    local y;
-
-//    y = shiftr(x', n, (miss(0, 0))');
-
-//    retp(y');
-//endp;
-
-proc diff_west(x, k);
-    
-    if k == 0;
-        retp(x) ;
-    endif ;
-    
-    retp(trimr(x, k, 0) - trimr(lagn(x, k), k, 0));
-endp;
-
 proc(1) = fact(e, nf, p, c);
     local t,n,pen,cr,k,s,smax,u,f,lam;
     
@@ -193,24 +175,6 @@ proc (2) = prin(e, nf);
     endif;
     
     retp(f, lam);
-endp;
-
-proc fejer(uv, k);
-    local i,m,a,t1,t2,f;
-    
-    i = 1;
-    a = 0;
-    
-    do until i > k;
-        f = i/(k+1);
-        m = 1 - f;
-        t1 = trimr(uv,i,0);
-        t2 = trimr(lagn(uv,i),i,0);
-        a = a + m*(t1't2);
-        i = i + 1;
-    endo;
-    
-    retp(a/rows(uv));
 endp;
 
 proc(2) = gdh_panel(y, x, kmax, pen, cri, mu_g, mu_p, var_g, var_p);

@@ -147,7 +147,7 @@ proc (1) = adfp(y, x, br, p, mod);
     if p == 1;
         m   = eye(t-1);
     else;
-        v   = lagp(w[1:t-1], p-1);
+        v   = lagp2(w[1:t-1], p-1);
         m   = eye(rows(v)) - v*inv(v'v)*v';
     endif;
     
@@ -160,9 +160,7 @@ proc (1) = adfp(y, x, br, p, mod);
     retp(zt~za);
 endp;
 
-
-
-proc(2) = mom(mod, k);
+proc(2) = mom_adfmin(mod, k);
     local mu1, mu2, var1, var2;
     
     mu1 = { -3.49890	-3.85190	-4.18972	-4.51141	-4.76502 ,
@@ -180,33 +178,7 @@ proc(2) = mom(mod, k);
     retp((mu1[mod,k]|mu2[mod,k]),(var1[mod,k]|var2[mod,k]));
 endp;
 
-
-
-
-proc fejer(uv, k);
-    local i, m, a, t1, t2, f;
-    i = 1;
-    a = 0;
-    do until i > k;
-        f = i/(k+1);
-        m = 1 - f;
-        t1 = trimr(uv, i, 0);
-        t2 = trimr(lagn(uv, i), i, 0);
-        a = a + m*(t1't2);
-        i = i + 1;
-    endo;
-    retp(a/rows(uv));
-endp;
-
-proc lrvar(u, p);
-    local lr, io, s;
-    io = fejer(u, p);
-    s  = (u'u)/rows(u);
-    lr = s + io + io';
-    retp(lr);
-endp;
-
-proc (1) = lagp(x, p);
+proc (1) = lagp2(x, p);
     local t, i, xl, dx, y, rio;
     
     t = rows(x);
@@ -231,12 +203,6 @@ proc (1) = lagp(x, p);
     endo;
     
     retp(dx);
-endp;
-
-proc lagn(x, n);
-    local y;
-    y = shiftr(x', n, (miss(0, 0))');
-    retp(y');
 endp;
 
 proc (1) = minpr(x);

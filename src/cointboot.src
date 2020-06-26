@@ -139,15 +139,13 @@ proc(1) = pfilter(x, rho, p);
     retp(y[p+1:rows(y), .]);
 endp;
 
-proc(2) = mom(mod, k);
+proc(2) = mom_cointboot(mod, k);
     local mu, var;
     
     if mod == 1;
         mu  = { 0.11601 0.08464 0.06539 0.05295 0.04442 };
         var = { 0.01151 0.00559 0.00266 0.00144 0.00086 };
-    endif;
-    
-    if mod == 2;
+    elseif mod == 2;
         mu  = { 0.05530 0.04686 0.04063 0.03532 0.03133 };
         var = { 0.00115 0.00078 0.00056 0.00036 0.00027 };
     endif;
@@ -189,9 +187,6 @@ proc (2) = fm(y, x, mod, q);
     retp(b, u);
 endp;
 
-
-
-
 proc (1) = lm(y, x, mod, q);
     local w, b, dx, e, vl, v0, s, d, t, u, k;
     
@@ -225,21 +220,3 @@ proc (1) = lm(y, x, mod, q);
     
     retp((sumc(abs(cumsumc(u)).^2))/((t^2)*s));
 endp;
-
-
-
-proc fejer(uv, k);
-    local i, m, a, t1, t2, f;
-    i = 1;
-    a = 0;
-    do until i > k;
-        f = i/(k+1);
-        m = 1 - f;
-        t1 = trimr(uv, i, 0);
-        t2 = trimr(lagn(uv, i), i, 0);
-        a = a + m*(t1't2);
-        i = i + 1;
-    endo;
-    retp(a/rows(uv));
-endp;
-

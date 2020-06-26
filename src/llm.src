@@ -82,10 +82,7 @@ proc(1) = estim_west(y,x,mod,est);
     retp(u);
 endp;
 
-
-
-
-proc(2) = mom(mod,k,est,t);
+proc(2) = mom_llm(mod, k, est, t);
     local a1,a2,a3,mu,var;
     
     if est == 1;    /* dols */
@@ -435,108 +432,46 @@ proc(1) = order(s0,ssr0,t,m,mod);
     retp(bic);
 endp;
 
-proc(1) = fmols(y,x,mod,p);
-    local w,xd,b,dx,e,io,s,sig,del,s21,s12,del21;
-    local ys,xk,ixx,t,u,d,k;
+proc(2) = lmbreak_panel(y, x, mod, est, seg, m, cri, ite);
+    local i, bri, lmi, mu, var, y0, x0, n, t;
     
-    t   = rows(y);
-    k   = cols(x);
+    // Size of panel
+    n = cols(y);
+    t = rows(y);
     
-    if mod == 0;
-        w   = x;
-        xd  = x;
-    else;
-        d   = detc(mod,t);
-        w   = x~d;
-        xd  = x-d*inv(d'd)*d'x;
-    endif;
-    
-    b 	= inv(w'w)*w'y;
-    u   = y - w*b;
-    dx 	= xd[2:t,.]-xd[1:t-1,.];
-    e 	= u[2:t,.]~dx;
-    
-    io 	= fejer(e,p);
-    s  	= (e'e)/rows(e);
-    sig = s + io + io';
-    del = s + io';
-    s21	= invpd(sig[2:k+1,2:k+1])*sig[2:k+1,1];
-    s12 = sig[1,1] - sig[1,2:k+1]*s21;
-    
-    if mod == 0;
-        del21 = t*(del[2:k+1,1]-del[2:k+1,2:k+1]*s21);
-    else;
-        del21 = t*(del[2:k+1,1]-del[2:k+1,2:k+1]*s21)|zeros(cols(d),1);
-    endif;
-    
-    ys      = y[2:t] - dx*s21;
-    xk      = w[2:t,.];
-    ixx     = inv(xk'xk);
-    b 	    = ixx*((xk'ys)-del21);
-    u       = ys - xk*b;
-    
-    retp(u);
-endp;
-
-proc(1) = dols(y,x,mod,p);
-    local i,xi,yi,t,n,dx,j,z,b,u,k;
-    
-    t   = rows(y);
-    k   = cols(x);
-    
-    j  = 1;
-    dx = zeros(t-2*p-1,k*(2*p+1));
-    do while j <= 2*p+1;
-        dx[.,1+(j-1)*k:j*k] = x[2*p+3-j:t+1-j,.] - x[2*p+2-j:t-j,.];
-        j = j + 1;
-    endo;
-    
-    xi = x[1:t-2*p-1,.];
-    yi = y[1:t-2*p-1,.];
-    z  = eye(rows(dx)) - dx*inv(dx'dx)*dx';
-    
-    if mod == 0;
-        xi = xi;
-    else;
-        xi = detc(mod,t-2*p-1)~xi;
-    endif;
-    
-    xi = z*xi;
-    yi = z*yi;
-    
-    b = invpd(xi'xi)*xi'yi;
-    u = yi - xi*b;
-    
-    retp(u);
-endp;
-
-proc(1) = detc(mod,t);
-    local z;
-    
-    if mod == 1;
-        z = ones(t,1);
-    elseif mod == 2;
-        z = ones(t,1)~seqa(1,1,t);
-    elseif mod == 3;
-        z = ones(t,1);
-    elseif mod == 4;
-        z = ones(t,1)~seqa(1,1,t);
-    endif;
-    
-    retp(z);
-endp;
-
-proc fejer(uv,k);
-    local i,m,a,t1,t2,f;
-    i = 1;
-    a = 0;
-    do until i > k;
-        f = i/(k+1);
-        m = 1 - f;
-        t1 = trimr(uv,i,0);
-        t2 = trimr(lagn(uv,i),i,0);
-        a = a + m*(t1't2);
+    i    = 1;
+    bri  = zeros(m+1,1);
+    lmi  = zeros(1,3);
+    {mu, var} = mom(mod,k,est,t);
+    do until i > n;
+        
+        y0  = y[.,i];
+        x0  = x[.,1+k*(i-1)];
+        bri = bri~breaks(y0,x0,mod,seg,m,cri,ite);
+        lmi = lmi + lmbreak(y0,x0,mod,bri[1,1+i],bri[2:m+1,1+i],est,mu,var);
+        
         i = i + 1;
     endo;
-    retp(a/rows(uv));
+    
+    bri = bri[.,2:cols(bri)];
+    mu  = lmi[2]/n;
+    var = lmi[3]/n;
+    lmi = sqrt(n)*(lmi[1]/n-mu)./sqrt(var);
+    
+    /* printing options */
+    format/m1/rd 8,3;
+    
+    
+    print " ";
+    print " n  = ";;
+    n;
+    print " t  = ";;
+    t;
+    print " lm = ";;
+    lmi;
+    print " ";
+    print " est breaks ";
+    bri;
+    retp(lmi, bri);
 endp;
+

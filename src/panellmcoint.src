@@ -244,68 +244,6 @@ proc (1) = ilt_ssr(y, x, br, p, mod);
     retp(u'u);
 endp;
 
-
-proc (1) = lagp(x, p);
-    local t,i,xl;
-    
-    t = rows(x);
-    
-    i  = 1;
-    xl = lagn(x, 1);
-    do while i < p;
-        i  = i + 1;
-        xl = (xl~lagn(x, i));
-    endo;
-    
-    retp(trimr(xl, p, 0));
-endp;
-
-
-
-proc lrvar(u, k);
-    local sl,s0;
-    
-    sl = fejer(u, k);
-    s0 = (u'u)/rows(u);
-    
-    retp((s0 + sl + sl'));
-endp;
-
-
-
-proc fejer(u, k);
-    local i,w,s,u0,ul;
-    
-    if k == 0;
-        s = 0;
-        goto out;
-    endif;
-    
-    i = 1;
-    s = 0;
-    do until i > k;
-        w  = 1 - i/(k+1);
-        u0 = trimr(u,i,0);
-        ul = trimr(lagn(u,i),i,0);
-        s  = s + w*(u0'ul);
-        i  = i + 1;
-    endo;
-    
-    out:
-        
-        retp(s/rows(u));
-endp;
-
-
-proc diff_west(x,k);
-    if k == 0;
-        retp(x) ;
-    endif ;
-    retp(trimr(x,k,0)-trimr(lagn(x,k),k,0));
-endp;
-
-
-
 proc (1) = minpr(x);
     local d,m,i,minx;
     

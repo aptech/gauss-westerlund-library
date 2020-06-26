@@ -90,22 +90,6 @@ proc (2) = prin(e, nf);
     retp(f, lam);
 endp;
 
-proc fejer(uv, k);
-    local i, m, a, t1, t2, f;
-    
-    i = 1;
-    a = 0;
-    do until i > k;
-        f = i/(k+1);
-        m = 1 - f;
-        t1 = trimr(uv, i, 0);
-        t2 = trimr(lagn(uv, i), i, 0);
-        a = a + m*(t1't2);
-        i = i + 1;
-    endo;
-    retp(a/rows(uv));
-endp;
-
 proc (7) = tsest(x, y, fmax, p, pen, cri);
     local t, n, xb, yb, xx, b, e, f0, v, dx, f, lam, i, s, si, di, d, l, o, adjb, tr, nf;
     local yp, xyp, sp, fmb1, fmb2, fms1, fms2, o11, o12, o22, o13, o31, o23, o32, o33;
