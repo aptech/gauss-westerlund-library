@@ -1,8 +1,14 @@
 new;
-n    = ??;
-t    = ??;
+library westerlund;
+
+n = 16;
+
+// Load data
+ynames = "TC02_" $+ ntos(seqa(1, 1, 16), 2);
+dat = loadd(__FILE_DIR $+ "panelcoint.dat");
+
 // K = 5 is max
-k    = ??;
+k    = 5
 
 // Model deterministic component type
 // 0 = nothing
