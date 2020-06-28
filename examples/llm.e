@@ -10,6 +10,12 @@ dat = loadd(__FILE_DIR $+ "panelcoint.dat");
 // K = 5 is max
 k    = 5
 
+y = dat[.,1:n];
+x = dat[.,n+1:cols(dat)];
+
+// Dimensions
+t = rows(y);
+
 // Model deterministic component type
 // 0 = nothing
 // 1 = const
