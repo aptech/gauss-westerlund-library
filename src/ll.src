@@ -283,7 +283,7 @@ proc(2) = icsys(x,y,pmax,qmax,d,r);
                 
                 if d == 1;
                     z = xt[., i]~ddx;
-                elseif == 2;
+                elseif d == 2;
                     z = ones(rows(dx), 1)~xt[.,i]~ddx;
                 elseif d == 3;
                     z = ones(rows(dx), 1)~seqa(1,1,rows(dx))~xt[.,i]~ddx;
