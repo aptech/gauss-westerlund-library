@@ -1,3 +1,6 @@
+new;
+library westerlundlib;
+
 // k = 5 is max
 k    = ??;
 t    = ??;

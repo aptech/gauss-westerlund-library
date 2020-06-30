@@ -1,10 +1,9 @@
 new;
-library westerlund;
+library westerlundlib;
 
 n = 16;
 
 // Load data
-ynames = "TC02_" $+ ntos(seqa(1, 1, 16), 2);
 dat = loadd(__FILE_DIR $+ "panelcoint.dat");
 
 y = dat[.,1:n];

@@ -1,5 +1,5 @@
 new;
-#include adfmin.src
+library westerlundlib;
 
 t       = ??;
 n       = ??;

@@ -1,4 +1,6 @@
 new;
+library westerlundlib;
+
 t       = ??;
 n       = ??;
 rule    = 2;                /* 1 = sic, 2 = aic, 3 = hiq, 4 = pic, 5 = fic */

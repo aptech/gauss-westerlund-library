@@ -1,4 +1,5 @@
 new;
+library westerlundlib;
 
 k       = ??;                       /* regressors, k = 6 is max */
 n       = ??;
