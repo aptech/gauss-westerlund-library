@@ -1,16 +1,18 @@
 new;
-library westerlund;
+library westerlundlib;
 
 n = 16;
 
 // Load data
-ynames = "TC02_" $+ ntos(seqa(1, 1, 16), 2);
 dat = loadd(__FILE_DIR $+ "panelcoint.dat");
 
 // K = 5 is max
-k    = 5
+k    = 5;
 
+// Dependent variables (t x n matrix)
 y = dat[.,1:n];
+
+// Independent variables (t x kn matrix)
 x = dat[.,n+1:cols(dat)];
 
 // Dimensions
@@ -43,11 +45,5 @@ ite  = 20;
 
 // Critical values for convergence
 cri  = 0.0001;
-
-// Dependent variables (t x n matrix)
-load y[t, n]   = c:\??;
-
-// Independent variables (t x kn matrix)
-load x[t, k*n] = c:\??;
 
 { lmi, bri } = lmbreak_panel(y, x, mod, est, seg, m, cri, ite);

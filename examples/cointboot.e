@@ -1,4 +1,5 @@
 new;
+library westerlundlib;
 
 t   = ??;
 n   = ??;
@@ -28,28 +29,6 @@ load x[t,n*k] 	= c:\??;
 // Independent matrix t x n
 load y[t,n] 	= c:\??;
 
-
-i = 1;
-l = 0;
-do while i <= n;
-    l = l + lm(y[., i], x[., 1+(i-1)*k:i*k], mod, p);
-    i = i + 1;
-endo;
-
-{ m, v } = mom_cointboot(mod, k);
-lmn = sqrt(n)*(l/n - m)./sqrt(v);
-bpv = boot(y, x, mod, est, nb, p);
-bpv = counts(bpv, lmn)/nb;
-
-/* printing options */
-format/m1/rd 8,3;
-
-print " ";
-print " lm statistic = ";;
-lmn;
-print " bootst p-val = ";;
-(1 - bpv);
-print " asymp p-val  = ";;
-cdfnc(lmn);
+{ lmn, pval } = boot_panel(y, x, est, mod, p, nb);
 
 
