@@ -5,6 +5,38 @@
 ** The code can be used freely as long as proper reference is given. No performance
 ** guarantee is made. Bug reports are welcome.
 */
+proc (2) = boot_panel(y, x, est, mod, p, nb);
+    local i, n, k, t, m, v, lmn, bpv;
+    
+    t = rows(y);
+    n = cols(y);
+    k = cols(x)/n;
+    
+    i = 1;
+    l = 0;
+    do while i <= n;
+        l = l + lm(y[., i], x[., 1+(i-1)*k:i*k], mod, p);
+        i = i + 1;
+    endo;
+    
+    { m, v } = mom_cointboot(mod, k);
+    lmn = sqrt(n)*(l/n - m)./sqrt(v);
+    bpv = boot(y, x, mod, est, nb, p);
+    bpv = counts(bpv, lmn)/nb;
+    
+    /* printing options */
+    format/m1/rd 8,3;
+    
+    print " ";
+    print " lm statistic = ";;
+    lmn;
+    print " bootst p-val = ";;
+    (1 - bpv);
+    print " asymp p-val  = ";;
+    cdfnc(lmn);
+    
+    retp(lmn, 1-bpv);
+endp;
 
 proc (2) = yulew(x, p);
     local t, i, j, vl, v0, x0, xl, u, b, k;

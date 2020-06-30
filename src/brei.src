@@ -5,6 +5,37 @@
 ** The code can be used freely as long as proper reference is given. No performance
 ** guarantee is made. Bug reports are welcome.
 */
+proc (2) = brei_panel(y, x, mod);
+    local i, b1, b2, mu, var, k, n;
+    
+    i  = 1;
+    b1 = 0;
+    n = cols(y);
+    k = cols(x)/n;
+    
+    do until i > n;
+        
+        b1 = b1 + brei(y[., i], x[., 1+(i-1)*k:i*k], mod);
+        
+        i = i + 1;
+        
+    endo;
+    
+    { mu, var } = breimom(mod, k);
+    b1 = sqrt(n)*(b1/n - mu)/sqrt(var);
+    
+    { mu, var } = pbreimom(mod, k);
+    b2  = sqrt(n)*(pbrei(y, x, mod) - mu)/sqrt(var);
+    
+    format/m1/rd 8,3;
+    print " ";
+    print " vr_g = ";;
+    b1;
+    print " vr_p = ";;
+    b2;
+    
+    retp(b1, b2);
+endp;
 
 proc (1) = pbrei(y, x, mod);
     local i, t, n, k, u, br, v;

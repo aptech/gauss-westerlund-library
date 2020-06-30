@@ -1,9 +1,11 @@
 proc(4) = adfmin_west(y, x);
-    local n, t;
-    local adfn1, adfn2, adfn3, adfn4, brn1, brn2, brn3, brn4, t1, t2;
+    local i, j, n, t;
+    local adf1, adf2, adfn1, adfn2, adfn3, adfn4, brn1, brn2, brn3, brn4, t1, t2;
+    local mu, var;
     
     // Number of individuals
     n = columns(y);
+    
     if n == 1;
         errorlogat "'adf_min': For a panel data set with k individuals, the dependent variable should have t x K columns.";
         end;
@@ -56,8 +58,6 @@ proc(4) = adfmin_west(y, x);
     adfn2    = sqrt(n)*(adfn2/n- mu[2])./sqrt(var[2]);
     adfn3    = sqrt(n)*(adfn3/n- mu[1])./sqrt(var[1]);
     adfn4    = sqrt(n)*(adfn4/n- mu[2])./sqrt(var[2]);
-    
-    
     
     /* printing options */
     format/m1/rd 8,4;
