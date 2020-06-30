@@ -63,7 +63,7 @@ proc (1) = gdh(w, p);
 endp;
 
 proc (1) = pdh(w, p);
-    local t,n,w0,wl,v,m,b1,b2,e,s,io,l,lnt,snt,dhs;
+    local i, t, n, w0, wl, v, m, b1, b2, e, s, io, l, lnt, snt, dhs;
     
     t   = rows(w);
     n   = cols(w);

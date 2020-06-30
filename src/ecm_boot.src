@@ -281,7 +281,7 @@ proc (2) = ols(y,x,mod);
 endp;
 
 proc(2) = ecm_panel(y, x, mod, p, q, r);
-    local i, j, g, test, m, v, pval, n;
+    local i, j, g, test, m, v, pval, n, botcr;
     
     n = cols(y);
     i    = 1;
