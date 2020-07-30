@@ -57,7 +57,7 @@ proc(1) = cusum_panel(y, x, mod, fm, p);
         i = i + 1;
     endo;
     
-    { mu, var } = mom(mod, k);
+    { mu, var } = mom_cusum(mod, k);
     cus      = sqrt(n)*(cus/n-mu)./sqrt(var);
     
     retp(cus);
