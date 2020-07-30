@@ -1,10 +1,16 @@
-proc(4) = adfmin_west(y, x);
-    local i, j, n, t;
-    local adf1, adf2, adfn1, adfn2, adfn3, adfn4, brn1, brn2, brn3, brn4, t1, t2;
-    local mu, var;
+proc(4) = adfmin_west(y, x, ...);
+    local i, j, n, t, k, idx;
+    local adf1, adf2, adfn1, adfn2, adfn3, adfn4, 
+    brn1, brn2, brn3, brn4, t1, t2;
+    local mu, var, p, mod, br, t0;
     
     // Number of individuals
-    n = columns(y);
+    n = cols(y);
+    k = cols(x)/n;
+    
+    // Get dynargs
+    idx = {1, 4};
+    { p, mod, br, t0 } = dynargsGet(idx, 1, 1, 0, 0.10);
     
     if n == 1;
         errorlogat "'adf_min': For a panel data set with k individuals, the dependent variable should have t x K columns.";
@@ -14,7 +20,8 @@ proc(4) = adfmin_west(y, x);
     // Number of time observations
     t = rows(y);
     
-    i     = 1;
+    i  = 1;
+    
     // Storage variables
     adfn1 = 0;
     adfn2 = 0;
@@ -53,7 +60,7 @@ proc(4) = adfmin_west(y, x);
         i = i + 1;
     endo;
     
-    { mu, var } = mom(mod, k);
+    { mu, var } = mom_adfmin(mod, k);
     adfn1    = sqrt(n)*(adfn1/n- mu[1])./sqrt(var[1]);
     adfn2    = sqrt(n)*(adfn2/n- mu[2])./sqrt(var[2]);
     adfn3    = sqrt(n)*(adfn3/n- mu[1])./sqrt(var[1]);
@@ -72,7 +79,7 @@ proc(4) = adfmin_west(y, x);
     print " pz_rho = ";;
     adfn4;
     
-    retp(sz_t, sz_rho, pz_t, pz_rho);
+    retp(adfn1, adfn2, adfn3, adfn4);
 endp;
 
 proc (1) = adfs(y, x, br, p, mod);
