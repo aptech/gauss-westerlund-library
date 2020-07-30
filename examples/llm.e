@@ -7,13 +7,13 @@ n = 16;
 dat = loadd(__FILE_DIR $+ "panelcoint.dat");
 
 // K = 5 is max
-k    = 5;
+k = 5;
 
 // Dependent variables (t x n matrix)
-y = dat[.,1:n];
+y = dat[., 1:n];
 
 // Independent variables (t x kn matrix)
-x = dat[.,n+1:cols(dat)];
+x = dat[., n+1:cols(dat)];
 
 // Dimensions
 t = rows(y);

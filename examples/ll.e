@@ -1,32 +1,62 @@
 new;
 library westerlundlib;
 
-t       = ??;
-n       = ??;
-rule    = 2;                /* 1 = sic, 2 = aic, 3 = hiq, 4 = pic, 5 = fic */
-mod     = 2;                /* 1 = nothing, 2 = const, 3 = const & trend */
-pmax    = 5;                /* max lag */
-qmax    = 5;                /* max lead */
-bw      = int(t^(1/3));	    /* bandwidth */
 
-load x[t,n] = c:\??;        /* t x n matrix */
-load y[t,n] = c:\??;        /* t x n matrix */
+// Here we load all data for testing
+// Note that this dataset is stacked
+// and the durbinh_panel procedure
+// requires wide panel data
+data = loadd(__FILE_DIR $+ "brics.xlsx", "code + lco2 + ly");
 
+// Time periods
+t = 29;
+ncross = rows(data)/t;
+k = (cols(data)-2);
 
+// Convert dependent data
+// from stacked to wide
+y = reshape(data[., 2], ncross, t)';
+
+// Convert independent data
+// from stacked to wide
+x = reshape(data[., 3]', ncross*k, t)';
+
+// Information criteria rule
+// 1 = SIC
+// 2 = AIC
+// 3 = HIQ
+// 4 = PIC
+// 5 = FIC
+rule = 2;              
+
+// Model specification
+// 1 = Nothing
+// 2 = Constant
+// 3 = Constant & Trend
+mod = 1;               
+
+// Max lag
+pmax = 2;               
+
+// Max lead
+qmax = 2;              
+
+// Bandwidth
+bw = int(t^(1/3));	   
 
 /* non-syst est */
 //  Lags and leads
-{ p, q }                       = ic(x, y, pmax, qmax, mod, rule);    
+{ p, q } = ic(x, y, pmax, qmax, mod, rule);    
 
 // Unrestricted dols b, t
 // Unrestricted dsur b & t
 // Restricted dols b & t
 // Restricted dsur b & t
-{ uo, us, ro, rs }               = est(x ,y, mod, p, q, bw);        
+{ uo, us, ro, rs } = est(x ,y, mod, p, q, bw);        
 
 // System estimation
-{ psys, qsys }                 = icsys(x, y, pmax, qmax, mod, rule);
-{ uosys, ussys, rosys, rssys}   = estsys(x, y, mod, psys, qsys, bw);
+{ psys, qsys } = icsys(x, y, pmax, qmax, mod, rule);
+{ uosys, ussys, rosys, rssys} = estsys(x, y, mod, psys, qsys, bw);
 
 // Restricted b
 rb = (ro[1]~rs[1]~rosys[1]~rssys[1]);         
