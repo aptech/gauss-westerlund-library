@@ -3,7 +3,7 @@ library westerlundlib;
 
 // Here we load all data for testing
 // Note that this dataset is stacked
-// and the brei_panel procedure
+// and the cointboot procedure
 // requires wide panel data
 data = loadd(__FILE_DIR $+ "brics.xlsx", "code + lco2 + ly");
 
