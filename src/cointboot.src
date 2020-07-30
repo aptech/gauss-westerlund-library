@@ -139,7 +139,7 @@ proc (1) = boot(y, x, mod, est, nb, q);
             i = i + 1;
         endo;
         
-        { m, v } = mom(mod, k);
+        { m, v } = mom_cointboot(mod, k);
         nl[j] = sqrt(n)*(l/n-m)./sqrt(v);
         
         j = j + 1;
