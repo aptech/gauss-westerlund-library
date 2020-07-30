@@ -6,7 +6,7 @@
 ** guarantee is made. Bug reports are welcome.
 */
 proc (2) = boot_panel(y, x, est, mod, p, nb);
-    local i, n, k, t, m, v, lmn, bpv;
+    local i, n, k, t, m, v, lmn, bpv,l;
     
     t = rows(y);
     n = cols(y);
