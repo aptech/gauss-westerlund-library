@@ -1,10 +1,24 @@
 new;
 library westerlundlib;
 
-// k = 5 is max
-k    = ??;
-t    = ??;
-n    = ??;
+// Here we load all data for testing
+// Note that this dataset is stacked
+// and the cointboot procedure
+// requires wide panel data
+data = loadd(__FILE_DIR $+ "brics.xlsx", "code + lco2 + ly");
+
+// Time periods
+t = 29;
+ncross = rows(data)/t;
+k = (cols(data)-2);
+
+// Convert dependent data
+// from stacked to wide
+y = reshape(data[., 2], ncross, t)';
+
+// Convert independent data
+// from stacked to wide
+x = reshape(data[., 3]', ncross*k, t)';
 
 // Model specification
 // 0 = nothing
@@ -21,15 +35,6 @@ p    = 2;
 
 // Bandwidth
 q    = int(t^(1/3));
-
-// Load independent variables
-// panel dataset
-// t x nk matrix
-load x[t, n*k] 	= c:\??.txt;
-
-// Panel data of dependent variables
-// t x n matrix
-load y[t,n] 	= c:\??.txt;
 
 cus = cusum_panel(y, x, mod, fm, p);
 
