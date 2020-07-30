@@ -33,7 +33,7 @@ pen  = 2;
 p    = int(4*(t/100)^(2/9));
 
 // Call panel test
-{ dhg, dgp } = gdh_panel(y, x, kmax, pen, cri, mu_g, mu_p, var_g, var_p);
+{ dhg, dhp } = gdh_panel(y, x, kmax, pen, cri);
 
 /* printing options */
 format/m1/rd 8,3;

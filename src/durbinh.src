@@ -177,11 +177,14 @@ proc (2) = prin(e, nf);
     retp(f, lam);
 endp;
 
-proc(2) = gdh_panel(y, x, kmax, pen, cri, mu_g, mu_p, var_g, var_p);
-    local i, dhg, dhp, e, nf;
+proc(2) = gdh_panel(y, x, kmax, pen, cri);
+    local i, dhg, dhp, e, nf, n, mu_g, mu_p, var_g, var_p;
     
     i       = 1;
     dhg     = 0;
+    
+    n = cols(y);
+    
     { e, nf }  = cum(x, y, kmax, pen, cri);
     
     do until i > n;
@@ -190,10 +193,15 @@ proc(2) = gdh_panel(y, x, kmax, pen, cri, mu_g, mu_p, var_g, var_p);
         i = i + 1;
         
     endo;
-
+    
+    // Simulated moments
+    mu_g = 5.5464;
+    var_g = 36.7673;
     dhg = sqrt(n)*(dhg/n - mu_g)/sqrt(var_g);
     
-    dhp = sqrt(n)*(pdh(e, p)/n - mu^(-1))/sqrt(mu_p^(-4)*var_p);
+    mu_p = 0.5005;
+    var_p =  0.3348;
+    dhp = sqrt(n)*(pdh(e, p)/n - mu_p^(-1))/sqrt(mu_p^(-4)*var_p);
     
     retp(dhg, dhp);
 endp;
