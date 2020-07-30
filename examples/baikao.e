@@ -1,9 +1,24 @@
 new;
 library westerlundlib;
 
-n = ??;
-t = ??;
-k = ??;
+// Here we load all data for testing
+// Note that this dataset is stacked
+// and the itest and ttest procedures
+// requires wide panel data
+data = loadd(__FILE_DIR $+ "brics.xlsx", "code + lco2 + ly");
+
+// Time periods
+t = 29;
+ncross = rows(data)/t;
+k = (cols(data)-2);
+
+// Convert dependent data
+// from stacked to wide
+y = reshape(data[., 2], ncross, t)';
+
+// Convert independent data
+// from stacked to wide
+x = reshape(data[., 3]', ncross*k, t)';
 
 // Maximum factors < n
 nfmax = 5;      
@@ -18,34 +33,10 @@ cri = 3;
 // Bandwidth
 p  = int(4*(t/100)^(2/9));    
 
-// Independent variables should be
-// a t x kn matrix
-load x[t, k*n] = c:\??.txt;    
-
-// Dependent matrix should be t x n
-load y[t, n] = c:\??.txt;  
-
 // Testing
+// Two-stage testing
 { b1, adjb1, fmb11, fmb21, s11, s21, nf1 } = tsest(x, y, nfmax, p, pen, cri);
+
+// Iterative testing
 { b2, adjb2, fmb12, fmb22, s12, s22, nf2 } = itest(x, y, nfmax, p, pen, cri);
 
-/* printing options */
-format/m1/rd 8,4;
-
-print " ";
-print " t = ";; t;  
-print " n = ";; n;
-print " ";
-print " two-stage b/s: ";
-print " ols ";; b1;; s21;
-print " adj ";; adjb1;; s11;
-print " fm  ";; fmb11;; s11;
-print " fma ";; fmb21;; s21;
-print " fn  ";; nf1;
-print " ";
-print " iter b/s: ";
-print " ols ";; b2;; s22;
-print " adj ";; adjb2;; s12;
-print " fm  ";; fmb12;; s12;
-print " fma ";; fmb22;; s22;
-print " fn  ";; nf2;
