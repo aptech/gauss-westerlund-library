@@ -39,26 +39,26 @@ proc(1) = fact(e, nf, p, c);
             // AIC
             if p == 1;
                 pen = 2*(n+t-k)/(n*t);
-            endif;  
+            endif;
             // BIC
             if p == 2;
                 pen = (n+t-k)*log(n*t)/(n*t);
-            endif; 
+            endif;
             
         endif;
         
         // pc
         if c == 1;
             cr[k] = s + k*smax*pen;
-        endif;  
-        // ic 
+        endif;
+        // ic
         if c == 2;
             cr[k] = log(s) + k*pen;
         endif;
         // AIC, BIC
         if c == 3;
             cr[k] = s + k*smax*pen;
-        endif; 
+        endif;
         
         k = k+1;
     endo;
@@ -109,7 +109,8 @@ proc (7) = tsest(x, y, fmax, p, pen, cri);
     dxv = zeros(n*(t-1), 1);
     
     do while i <= k;
-        
+        1+n*(i-1);
+        n*i;
         xbv = xbv~vec(xb[., 1+n*(i-1):n*i]);
         xbl = xbl~vec(xb[2:t, 1+n*(i-1):n*i]);
         dxv = dxv~vec(dx[., 1+n*(i-1):n*i]);
@@ -126,7 +127,7 @@ proc (7) = tsest(x, y, fmax, p, pen, cri);
     e  = reshape(e, n, t)';
     
     // Est of number of factors
-    nf = fact(e, fmax, pen, cri);           
+    nf = fact(e, fmax, pen, cri);
     { f, lam } = prin(e, nf);
     
     i  = 1;
@@ -200,11 +201,34 @@ proc (7) = tsest(x, y, fmax, p, pen, cri);
     fmb2 = (xyp - n*t*s23)*xx;
     fms2 = sqrt(diag(6*inv(o33)*s22))';
     
+    /* printing options */
+    format/m1/rd 8,4;
+    
+    // Print results
+    print " ";
+    print " t = ";;
+    t;
+    print " n = ";;
+    n;
+    print " ";
+    print " two-stage b/s: ";
+    print " ols ";;
+    b;;
+    fms2;
+    print " adj ";;
+    adjb;;
+    fms1;
+    print " fm  ";;
+    fmb1;;
+    fms1;
+    print " fma ";;
+    fmb2;;
+    fms2;
+    print " fn  ";;
+    nf;
+    
     retp(b, adjb, fmb1, fmb2, fms1, fms2, nf);
 endp;
-
-
-
 
 proc (7) = itest(x, y, fmax, p, pen, cri);
     local t, n, xb, yb, xx, b, olsb, e, f0, v, dx, f, lam, i, s, si, di, d, l, o, adjb, tr, nf;
@@ -249,7 +273,7 @@ proc (7) = itest(x, y, fmax, p, pen, cri);
         e = reshape(e, n, t)';
         
         // Estimate of number of factors
-        nf = fact(e,fmax,pen,cri);           
+        nf = fact(e,fmax,pen,cri);
         { f, lam } = prin(e, nf);
         
         i  = 1;
@@ -326,7 +350,7 @@ proc (7) = itest(x, y, fmax, p, pen, cri);
         
         if j > max;
             // Number of iterations reach upper limit
-            goto top;                   
+            goto top;
         else;
             b = fmb1;
             j = j + 1;
@@ -334,6 +358,32 @@ proc (7) = itest(x, y, fmax, p, pen, cri);
     endo;
     
     top:
-        
-        retp(olsb, adjb, fmb1, fmb2, fms1, fms2, nf);
+    
+      /* printing options */
+    format/m1/rd 8,4;
+
+    // Print results
+    print " ";
+    print " t = ";;
+    t;
+    print " n = ";;
+    n;
+    print " ";
+    print " iter b/s: ";
+    print " ols ";;
+    olsb;;
+    fms2;
+    print " adj ";;
+    adjb;;
+    fms1;
+    print " fm  ";;
+    fmb1;;
+    fms1;
+    print " fma ";;
+    fmb2;;
+    fms2;
+    print " fn  ";;
+    nf;
+    
+    retp(olsb, adjb, fmb1, fmb2, fms1, fms2, nf);
 endp;
