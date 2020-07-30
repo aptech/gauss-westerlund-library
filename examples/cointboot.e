@@ -1,11 +1,25 @@
 new;
 library westerlundlib;
 
-t   = ??;
-n   = ??;
+// Here we load all data for testing
+// Note that this dataset is stacked
+// and the brei_panel procedure
+// requires wide panel data
+data = loadd(__FILE_DIR $+ "brics.xlsx", "code + lco2 + ly");
 
-// Regressors, k = 5 is max
-k = ??;
+// Time periods
+t = 29;
+ncross = rows(data)/t;
+k = (cols(data)-2);
+
+// Convert dependent data
+// from stacked to wide
+y = reshape(data[., 2], ncross, t)';
+
+// Convert independent data
+// from stacked to wide
+x = reshape(data[., 3]', ncross*k, t)';
+
 
 // Number of bootstrap replications
 nb = 100;
@@ -22,12 +36,6 @@ mod = 1;
 // 1 = OLS
 // 2 = Yule-Walker
 est = 2;
-
-// Load independent variables t x nk matrix
-load x[t,n*k] 	= c:\??;
-
-// Independent matrix t x n
-load y[t,n] 	= c:\??;
 
 { lmn, pval } = boot_panel(y, x, est, mod, p, nb);
 
