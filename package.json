@@ -1,0 +1,28 @@
+{
+    "author": "Joakim Westerlund.",
+    "deps": [
+    ],
+    "description": "The GAUSS cwesterlund lib contains procedure developed by Joakim Westerlund.",
+    "dlib": [
+    ],
+    "keywords": [
+    ],
+    "license": "Non-Commercial",
+    "name": "westerlundlib",
+    "repo": "",
+    "src": [
+        "adfmin.src",
+        "baikao.src",
+        "brei.src",
+        "cointboot.src",
+        "cusum_west.src",
+        "durbinh.src",
+        "ecm_boot.src",
+        "ll.src",
+        "llm.src",
+        "panellmcoint.src",
+        "util_west.src"
+       
+    ],
+    "version": "0.0.1"
+}
