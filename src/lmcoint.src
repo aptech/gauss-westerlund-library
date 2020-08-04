@@ -55,7 +55,7 @@ proc (1) = ilt_lmcoint(y, x, br, pmax, mod);
     retp(zt~za);
 endp;
 
-proc (1) = campbell(x,pmax);
+proc (1) = campbell(x, pmax);
     local i,j,p,xl,z,b,dx,u,s,tr,out,t;
     
     t = rows(x);
@@ -63,20 +63,23 @@ proc (1) = campbell(x,pmax);
     p = pmax;
     do while p >= 1;
         
-        xl = x[p+1:t-1];
-        dx = x[p+2:t] - xl;
-        z  = ones(t-p-1,1)~xl~lagp((x[1:t-1]-x[2:t]),p-1);
+        xl = x[p+1:t-1, .];
+        dx = x[p+2:t, .] - xl;
+        z  = ones(t-p-1, 1)~xl~lagp((x[1:t-1, .]-x[2:t, .]), p);
         b  = inv(z'z)*(z'dx);
         u  = dx - z*b;
-        s  = (u'u)/(t-p-2);
-        s  = sqrt(diag(s*inv(z'z)));
-        tr = abs(b[rows(b),1]/s[rows(s),1]);
+        s  = (u*u')./(t-p-2);
+        s  = sqrt(diag(s*inv(z*z')));
+        tr = abs(b[rows(b), 1]/s[rows(s), 1]);
         
         if tr > 1.96;
             j = p-1;
             goto out;
         endif;
-        
+                
+        if p==1;
+            j = error(30);
+        endif;
         p = p - 1;
     endo;
     
@@ -118,15 +121,24 @@ proc (1) = ilt_ssr(y,x,br,pmax,mod);
     dx = (diff_west(x,1)~dz);
     dy = diff_west(y,1);
     d  = inv(dx'dx)*(dx'dy);
-    b  = y[1] - (x[1,.]~z[1,.])*d;
+    b  = y[1, .] - (x[1,.]~z[1,.])*d;
     s0 = y - b - (x~z)*d;
     sl = s0[1:t-1,.];
     ds = s0[2:t,.] - sl;
     
     p  = campbell(s0,pmax);
-    v  = (ones(t-p-2,1)~lagp(ds,p));
-    ds = (eye(t-p-2)-v*inv(v'v)*v')*ds[p+2:t-1];
-    sl = (eye(t-p-2)-v*inv(v'v)*v')*sl[p+2:t-1];
+    if ismiss(p);
+        p = 0;
+//        errorlog "'ilt_ssr': Cannot determine optimal lags";
+//        end;
+    endif;
+    v  = (ones(t-p-1,1)~lagp(ds,p));
+    local tmp, tmp2, tmp3;
+    tmp = ds[p+2:t-1, .];
+    tmp2 = v*inv(v'v)*v';
+    tmp3 = eye(t-p-1);
+    ds = (eye(t-p-2)-v*inv(v'v)*v')*ds[p+2:t-1, .];
+    sl = (eye(t-p-2)-v*inv(v'v)*v')*sl[p+2:t-1, .];
     d  = inv(sl'sl)*(sl'ds);
     u  = ds - sl*d;
     
