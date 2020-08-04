@@ -438,7 +438,7 @@ proc(2) = lmbreak_panel(y, x, mod, est, seg, m, cri, ite);
     // Size of panel
     n = cols(y);
     t = rows(y);
-    k = cols(y);
+    k = cols(x)/n;
     
     i    = 1;
     bri  = zeros(m+1,1);
@@ -454,7 +454,7 @@ proc(2) = lmbreak_panel(y, x, mod, est, seg, m, cri, ite);
         i = i + 1;
     endo;
     
-    bri = bri[.,2:cols(bri)];
+    bri = bri[., 2:cols(bri)];
     mu  = lmi[2]/n;
     var = lmi[3]/n;
     lmi = sqrt(n)*(lmi[1]/n-mu)./sqrt(var);

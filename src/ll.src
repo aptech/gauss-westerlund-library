@@ -278,7 +278,7 @@ proc(2) = icsys(x,y,pmax,qmax,d,r);
             
             i 	= 1;
             criti = 0;
-            ddx = ddx[.,2:cols(ddx)];
+            ddx = ddx[., 2:cols(ddx)];
             do while i <= n;
                 
                 if d == 1;
