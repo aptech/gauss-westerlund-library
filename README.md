@@ -15,11 +15,9 @@ The GAUSS Westerlund library can be easily installed using the [**GAUSS Applicat
 
 1. Download the zipped folder `westerlundlib_0.1.zip` from the [westerlundlib release page](https://github.com/aptech/westerlund/releases).
 2. Select **Tools > Install Application** from the main **GAUSS** menu.  
-![install wizard](images/install_application.png)  
 3. Follow the installer prompts, making sure to navigate to the downloaded `westerlund_0.1.zip`.
 4. Before using the functions created by `westerlundlib` you will need to load the newly created `westerlundlib` library. This can be done in a number of ways:
   *   Navigate to the library tool view window and click the small wrench located next to the `westerlundlib` library. Select `Load Library`.  
-  ![load library](images/load_westerlundlib.PNG)
   *  Enter `library westerlundlib` in the program input/output window.
   *  Put the line `library westerlundlib;` at the beginning of your program files.
 
@@ -30,8 +28,6 @@ After installing the library the example files will be found in your **GAUSS** h
 
 ### Documentation
 We have not yet developed detailed documentation about the library. However, you can find more information about the functions by looking at the function headers in the `.src` codes.
-
-![accessing GAUSS source files](images/westerlundlib_src_file.png)
 
 You can access these source codes through the library tool by expanding the `westerlundlib.lcg` menu and clicking on the file name. The file will open in the program editor and you will be able to view the headers for each specific function.
 
