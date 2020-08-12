@@ -213,7 +213,7 @@ proc (1) = boot(y,x,mod,nb,p,q,r);
     u  = zeros(t-p-q-1,n);
     do while i <= n;
         {yb,xb}         = lagpq(y[.,i],x[.,1+(i-1)*k:i*k],p,q);
-        {b[.,i],u[.,i]} = ols(yb,xb[.,2+k:cols(xb)],mod);
+        {b[.,i],u[.,i]} = ols_ecm(yb,xb[.,2+k:cols(xb)],mod);
         i = i + 1;
     endo;
     
@@ -259,7 +259,7 @@ endp;
 
 
 
-proc (2) = ols(y,x,mod);
+proc (2) = ols_ecm(y,x,mod);
     local w,b,t,u;
     
     t   = rows(y);

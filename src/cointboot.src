@@ -75,7 +75,7 @@ proc (2) = yulew(x, p);
 endp;
 
 
-proc (2) = ols(x, p);
+proc (2) = ols_coint(x, p);
     local k, x0, xl, b, u;
     
     k  = cols(x);
@@ -104,7 +104,7 @@ proc (1) = boot(y, x, mod, est, nb, q);
     do while i <= n;
         { b[., i], e[., i] } = fm(y[., i], x[., 1+(i-1)*k:i*k], mod, q);
         if est eq 1;
-            { p[., 1+(k+1)*(i-1):(k+1)*i], u[.,1+(k+1)*(i-1):(k+1)*i] } = ols((e[., i]~(x[2:t, 1+(i-1)*k:i*k]-x[1:t-1, 1+(i-1)*k:i*k])), q);
+            { p[., 1+(k+1)*(i-1):(k+1)*i], u[.,1+(k+1)*(i-1):(k+1)*i] } = ols_coint((e[., i]~(x[2:t, 1+(i-1)*k:i*k]-x[1:t-1, 1+(i-1)*k:i*k])), q);
         endif;
         if est eq 2;
             { p[., 1+(k+1)*(i-1):(k+1)*i], u[., 1+(k+1)*(i-1):(k+1)*i] } = yulew((e[., i]~(x[2:t, 1+(i-1)*k:i*k]-x[1:t-1, 1+(i-1)*k:i*k])), q);
