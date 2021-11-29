@@ -13,7 +13,7 @@ The GAUSS Westerlund library can be installed and updated directly in GAUSS usin
 **GAUSS 18+**
 The GAUSS Westerlund library can be easily installed using the [**GAUSS Application Installer**](https://www.aptech.com/support/installation/using-the-applications-installer-wizard/), as shown below:
 
-1. Download the zipped folder `westerlundlib_0.1.zip` from the [westerlundlib release page](https://github.com/aptech/westerlund/releases).
+1. Download the zipped folder `westerlundlib_0.1.zip` from the [westerlundlib release page](https://github.com/aptech/gauss-westerlund-library/releases/tag/v0.1.0).
 2. Select **Tools > Install Application** from the main **GAUSS** menu.  
 3. Follow the installer prompts, making sure to navigate to the downloaded `westerlund_0.1.zip`.
 4. Before using the functions created by `westerlundlib` you will need to load the newly created `westerlundlib` library. This can be done in a number of ways:
@@ -21,7 +21,7 @@ The GAUSS Westerlund library can be easily installed using the [**GAUSS Applicat
   *  Enter `library westerlundlib` in the program input/output window.
   *  Put the line `library westerlundlib;` at the beginning of your program files.
 
->  Note: I have provided the individual files found in [`westerlundlib_1.0.zip`](https://github.com/aptech/westerlundlib/releases) for examination and review. However, installation should always be done using the [`westerlundlib_0.1.zip` folder from the release page](https://github.com/aptech/westerlundlib/releases) and the [**GAUSS Application Installer**](https://www.aptech.com/support/installation/using-the-applications-installer-wizard/).
+>  Note: I have provided the individual files found in [`westerlundlib_1.0.zip`](https://github.com/aptech/gauss-westerlund-library/releases/tag/v0.1.0) for examination and review. However, installation should always be done using the [`westerlundlib_0.1.zip` folder from the release page](https://github.com/aptech/gauss-westerlund-library/releases/tag/v0.1.0) and the [**GAUSS Application Installer**](https://www.aptech.com/support/installation/using-the-applications-installer-wizard/).
 
 ### Examples
 After installing the library the example files will be found in your **GAUSS** home directory in the directory **pkgs > westerlundlib >examples**. The example uses **GAUSS** datasets included in the **pkgs > westerlundlib >examples** directory.
