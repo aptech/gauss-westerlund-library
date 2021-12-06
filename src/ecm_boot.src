@@ -209,7 +209,7 @@ proc (1) = boot(y,x,mod,nb,p,q,r);
     k = cols(x)/n;
     
     i  = 1;
-    b  = zeros(mod+p+k*(p+q),n);
+    b  = zeros(mod+p+k*(p+q)+1,n);
     u  = zeros(t-p-q-1,n);
     do while i <= n;
         {yb,xb}         = lagpq(y[.,i],x[.,1+(i-1)*k:i*k],p,q);
