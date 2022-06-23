@@ -8,10 +8,7 @@ The program files require a working copy of **GAUSS 19+**. Many tests can be run
 
 ### Installing
 **GAUSS 20+**
-The GAUSS Westerlund library can be installed and updated directly in GAUSS using the [GAUSS package manager](https://www.aptech.com/blog/gauss-package-manager-basics/).
-
-**GAUSS 18+**
-The GAUSS Westerlund library can be easily installed using the [**GAUSS Application Installer**](https://www.aptech.com/support/installation/using-the-applications-installer-wizard/), as shown below:
+The GAUSS Westerlund library can be installed using the [**GAUSS Application Installer**](https://www.aptech.com/support/installation/using-the-applications-installer-wizard/), as shown below:
 
 1. Download the zipped folder `westerlundlib_0.1.zip` from the [westerlundlib release page](https://github.com/aptech/gauss-westerlund-library/releases/tag/v0.1.0).
 2. Select **Tools > Install Application** from the main **GAUSS** menu.  
@@ -35,7 +32,7 @@ You can access these source codes through the library tool by expanding the `wes
 The author makes no performance guarantees. The `westerlundlib` is available for public non-commercial use only.
 
 ## Author
-For any bugs, please send e-mail to [Erica Clower](mailto:erica@aptech.com).
+For any bugs, please send e-mail to [Eric Clower](mailto:eric@aptech.com).
 
 ## Supported
 |src file| Reference|Description|Procedure|
