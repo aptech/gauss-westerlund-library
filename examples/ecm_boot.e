@@ -5,10 +5,10 @@ library westerlundlib;
 // Note that this dataset is stacked
 // and the ecm_panel procedure
 // requires wide panel data
-data = loadd(__FILE_DIR $+ "brics.xlsx", "code + lco2 + ly");
+data = loadd(__FILE_DIR $+ "esb.xlsx", "code+lnco2per+lnhc+lnec");
 
 // Time periods
-t = 29;
+t = 26;
 ncross = rows(data)/t;
 k = (cols(data)-2);
 
@@ -18,7 +18,10 @@ y = reshape(data[., 2], ncross, t)';
 
 // Convert independent data
 // from stacked to wide
-x = reshape(data[., 3]', ncross*k, t)';
+xtmp2 = zeros(t, ncross*k);
+for j (1, ncross, 1);
+    xtmp2[., (j-1)*k+1:j*k] = selif(data[., 3:cols(data)], data[., "code"] .== j);
+endfor;
 
 // Number of bootstrap replications
 nb      = 1000;   
@@ -27,7 +30,7 @@ nb      = 1000;
 // 1 = Nothing
 // 2 = Constant
 // 3 = Constant & Trend
-mod     = 1;    
+mod     = 2;    
 
 // Lags
 p       = int(4*(t/100)^(2/9));    
@@ -39,4 +42,4 @@ q       = int(4*(t/100)^(2/9));
 r       = int(4*(t/100)^(2/9));     
 
 // Run the test
-{ test, pval } = ecm_panel(y, x, mod, p, q, r);
+{ test, pval } = ecm_panel(y, xtmp2, mod, p, q, r);

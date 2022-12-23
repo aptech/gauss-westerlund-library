@@ -6,7 +6,7 @@ n = 16;
 // Load data
 dat = loadd(__FILE_DIR $+ "panelcoint.dat");
 
-y = dat[.,1:n];
+y = dat[., 1:n];
 x = dat[.,n+1:cols(dat)];
 
 // Dimensions
