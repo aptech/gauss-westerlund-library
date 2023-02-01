@@ -202,7 +202,7 @@ endp;
 
 
 proc (1) = boot(y,x,mod,nb,p,q,r);
-    local n,t,i,b,e,u,dy,dx,j,l,h,xb,yb,m,v,ti,t1,t2,k;
+    local n,t,i,b,e,u,dy,dx,j,l,h,xb,yb,m,v,ti,t1,t2,k,tmp3;
     
     n = cols(y);
     t = rows(y);
